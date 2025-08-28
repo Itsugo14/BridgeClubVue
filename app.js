@@ -2,7 +2,6 @@ const baseUrl = "Indsæt base URL her";
 Vue.createApp({
   data() {
     return {
-      ID: [],
       FirstName: "",
       SurName: "",
       Adress1: "",
@@ -13,7 +12,6 @@ Vue.createApp({
       Email: "",
       Password: "",
       DateOfBirth: "",
-      Junior: false,
       NewsLetter: false
     }
   },
