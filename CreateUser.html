@@ -1,76 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ENjdO4Dr2bkBIFxQpeoA6DQD1KQ9Q6U5r9Xl+cbkz5l5hb5g1Q1Q1Q1Q1Q1Q1Q1Q" crossorigin="anonymous">
     <meta charset="UTF-8">
     <title>Opret bruger</title>
     <!-- Include Vue.js from CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body>
-
-            <div id="app" class="min-vh-100 d-flex align-items-center justify-content-center">
-                <div class="col-md-8 col-lg-6">
-                    <div class="card shadow">
-                        <div class="card-body">
-                            <h2 class="card-title mb-4 text-center">Opret bruger</h2>
-                            <form @submit.prevent="addUser">
-                                <div class="mb-3">
-                                    <label class="form-label">Fornavn</label>
-                                      <input v-model="FirstName" type="text" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Efternavn</label>
-                                      <input v-model="SurName" type="text" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Email</label>
-                                      <input v-model="Email" type="email" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Adgangskode</label>
-                                      <input v-model="Password" type="password" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Fødselsdato</label>
-                                      <input v-model="DateOfBirth" type="date" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Adresse 1</label>
-                                      <input v-model="Adress1" type="text" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Adresse 2</label>
-                                      <input v-model="Adress2" type="text" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Land</label>
-                                      <input v-model="Country" type="text" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Postnummer</label>
-                                      <input v-model="PostCode" type="text" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Telefonnummer</label>
-                                      <input v-model="Phone" type="text" class="form-control">
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input v-model="NewsLetter" class="form-check-input" type="checkbox" id="newsletterCheck">
-                                    <label class="form-check-label" for="newsletterCheck">Tilmeld nyhedsbrev</label>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100">Opret bruger</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div id="app">
+        <h1>{{ message }}</h1>
+        <input v-model="message" placeholder="Type something">
+        <button @click="reverseMessage">Reverse</button>
+    </div>
 
     <!-- Your custom JS file -->
     <script src="app.js"></script>
 </body>
-    <!-- Bootstrap JS Bundle (includes Popper) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-qQ1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q1Q" crossorigin="anonymous"></script>
 </html>
