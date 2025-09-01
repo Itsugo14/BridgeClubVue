@@ -16,7 +16,7 @@
         <body>  
             <h1>Dansk Bridgeforbund</h1>
             <h4>Opret Bruger</h4>
-            <form>
+            <form v-on:submit.prevent="addMember">
                 <p>Email: <input type ="email" required v-model="Email"></p>
                 <p>Adgangskode: <input type ="password" required v-model="Password"></p>
                 <p>Bekræft adgangskode: <input type ="password" required v-model="ConfirmPassword"></p>
@@ -30,14 +30,14 @@
                 <p>Fødselsdato: <input type ="date" required v-model="DateOfBirth"></p>
                 <button type="submit">Opret bruger</button>
             </form>
-            <div>
+            <!-- <div>
             <a href="IndsætLinkTilLoginSide">Er du allerede bruger?</a>
-            </div>
+            </div> -->
 
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
             <script>
-                const baseUrl = "Indsæt baseURL her";
+                // const baseUrl = "Indsæt baseURL her";
                 Vue.createApp({
                     data() {
                         return {
@@ -55,14 +55,8 @@
                         }
                     },
                         methods: {
-                            addUser() {
-                                this.addUser(baseUrl)
-                            },
-                            Login() {
-                                this.Login(baseUrl)
-                            },
-                            sendRecoveryCode() {
-                                this.sendRecoveryCode(baseUrl)
+                            addMember() {
+                                this.addMember(baseUrl)
                             }
 
                         }
