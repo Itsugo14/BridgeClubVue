@@ -1,4 +1,4 @@
-const baseUrl = "Indsæt base URL her";
+const baseUrl = "Indsæt baseURL her";
 Vue.createApp({
   data() {
     return {
