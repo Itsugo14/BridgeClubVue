@@ -22,5 +22,29 @@
             <input type="password" id="password" name="password"><br><br>
             <input type="submit" value="Log ind">
         </form>
+            <div>
+            <a href="C:\GitHub\BridgeProjekt\BridgeClubVue\CreateUser.htm">Er du ikke oprettet?</a>
+            </div>
+
+
+         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+         <script>   
+            const baseUrl = "Indsæt baseURL her";
+            Vue.createApp({
+                data() {
+                    return {
+                        Email: "",
+                        Password: ""
+                    }
+                },
+                methods: {
+                    login() {
+                        this.login(baseUrl)
+                    }
+                }
+            });
+         </script>
+
     </body>
 </html>

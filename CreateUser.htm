@@ -31,7 +31,7 @@
                 <button type="submit">Opret bruger</button>
             </form>
             <div>
-            <a href="IndsætLinkTilLoginSide">Er du allerede bruger?</a>
+            <a href="C:\GitHub\BridgeProjekt\BridgeClubVue\Login.htm">Er du allerede bruger?</a>
             </div>
 
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -50,21 +50,13 @@
                             Phone: [],
                             Email: "",
                             Password: "",
-                            DateOfBirth: "",
-                            NewsLetter: false
+                            DateOfBirth: ""
                         }
                     },
                         methods: {
                             addUser() {
                                 this.addUser(baseUrl)
-                            },
-                            Login() {
-                                this.Login(baseUrl)
-                            },
-                            sendRecoveryCode() {
-                                this.sendRecoveryCode(baseUrl)
                             }
-
                         }
                 }).mount("#app")
                 

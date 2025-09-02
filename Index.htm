@@ -17,5 +17,25 @@
         <h1>Dansk Bridgeforbund</h1>
         <div v-if="[IsLoggedIn]">Bruger er logget ind</div>
         <div v-else>Bruger er ikke logget ind</div>
+
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+        <script>
+            const baseUrl = "Indsæt baseURL her";
+            Vue.createApp({
+                data() {
+                    return {
+                        IsLoggedIn: false
+                    }
+                },
+                methods: {
+                    CheckLoginStatus() {
+                        this.IsLoggedIn = false;
+                    }
+                }
+            });
+            app.mount("#app");
+        </script>
+
     </body>
 </html>
