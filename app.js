@@ -23,6 +23,9 @@ Vue.createApp({
     },
     sendRecoveryCode() {
       this.sendRecoveryCode(baseUrl)
+    },
+    CheckLogin() {
+      this.CheckLogin(baseUrl)
     }
 
   }
