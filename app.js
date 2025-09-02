@@ -11,8 +11,7 @@ Vue.createApp({
       Phone: [],
       Email: "",
       Password: "",
-      DateOfBirth: "",
-      NewsLetter: false
+      DateOfBirth: ""
     }
   },
   methods: {
