@@ -37,27 +37,66 @@
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
             <script>
-                const baseUrl = "Indsæt baseURL her";
+                const baseUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/MembersDb";
                 Vue.createApp({
                     data() {
                         return {
-                            FirstName: "",
-                            SurName: "",
-                            Adress1: "",
-                            Adress2: "",
-                            Country: "",
-                            PostCode: [],
-                            Phone: [],
-                            Email: "",
-                            Password: "",
-                            DateOfBirth: ""
+                            firstName: "",
+                            surName: "",
+                            address1: "",
+                            address2: "",
+                            postCode: "",
+                            phoneNumber: "",
+                            email: "",
+                            password: "",
+                            confirmPassword: "",
+                            dateOfBirth: "",
+                            junior: false,
+                            newsletter: false,
+                            error: "",
+                            success: ""
                         }
                     },
-                        methods: {
-                            addUser() {
-                                this.addUser(baseUrl)
+                    methods: {
+                        async addUser(e) {
+                            if (e) e.preventDefault();
+                            this.error = "";
+                            this.success = "";
+                            if (this.password !== this.confirmPassword) {
+                                this.error = "Adgangskoderne matcher ikke.";
+                                return;
+                            }
+                            // Basic validation
+                            if (!this.email || !this.password || !this.firstName || !this.surName) {
+                                this.error = "Udfyld alle obligatoriske felter.";
+                                return;
+                            }
+                            const newUser = {
+                                firstName: this.firstName,
+                                surName: this.surName,
+                                email: this.email,
+                                phoneNumber: this.phoneNumber,
+                                address1: this.address1,
+                                address2: this.address2,
+                                postCode: this.postCode,
+                                dateOfBirth: this.dateOfBirth,
+                                junior: this.junior,
+                                newsletter: this.newsletter,
+                                password: this.password
+                            };
+                            try {
+                                const response = await fetch(baseUrl, {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(newUser)
+                                });
+                                if (!response.ok) throw new Error("API fejl: " + response.status);
+                                this.success = "Bruger oprettet!";
+                            } catch (err) {
+                                this.error = err.message;
                             }
                         }
+                    }
                 }).mount("#app")
                 
             </script>
