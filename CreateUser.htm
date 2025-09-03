@@ -13,27 +13,29 @@
             }
         </style>
     </head>
-        <body>  
-            <h1>Dansk Bridgeforbund</h1>
-            <h4>Opret Bruger</h4>
-            <form>
-                <p>Email: <input type ="email" required v-model="Email"></p>
-                <p>Adgangskode: <input type ="password" required v-model="Password"></p>
-                <p>Bekræft adgangskode: <input type ="password" required v-model="ConfirmPassword"></p>
-                <p>Fornavn: <input type ="text" required v-model="FirstName"></p>
-                <p>Efternavn: <input type ="text" required v-model="SurName"></p>
-                <p>Adresse: <input type ="text" required v-model="Address1"></p>
-                <p>Anden adresse: <input type ="text" v-model="Address2"></p>
-                <p>Land: <input type ="text" required v-model="Country"></p>
-                <p>Postnummer: <input type ="text" required v-model="PostCode"></p>
-                <p>Telefon nummer: <input type ="tel" required v-model="Phone"></p>
-                <p>Fødselsdato: <input type ="date" required v-model="DateOfBirth"></p>
-                <button type="submit">Opret bruger</button>
-            </form>
-            <div>
-            <a href="C:\GitHub\BridgeProjekt\BridgeClubVue\Login.htm">Er du allerede bruger?</a>
+        <body>
+            <div id="app">
+                <h1>Dansk Bridgeforbund</h1>
+                <h4>Opret Bruger</h4>
+                <form @submit.prevent="addUser">
+                    <p>Fornavn: <input type ="text" required v-model="firstName"></p>
+                    <p>Efternavn: <input type ="text" required v-model="surName"></p>
+                    <p>Email: <input type ="text" required v-model="email"></p>
+                    <p>Telefon nummer: <input type ="text" required v-model="phoneNumber"></p>
+                    <p>Adresse: <input type ="text" required v-model="address1"></p>
+                    <p>Postnummer: <input type ="text" required v-model="postCode"></p>
+                    <p>Adgangskode: <input type ="password" required v-model="password"></p>
+                    <p>Bekræft adgangskode: <input type ="password" required v-model="confirmPassword"></p>
+                    <p>Fødselsdato: <input type ="date" required v-model="dateOfBirth"></p>
+                    <button type="submit">Opret bruger</button>
+                    <p v-if="addMessage">{{ addMessage }}</p>
+                </form>
+                <div>
+                    <a href="C:\GitHub\BridgeProjekt\BridgeClubVue\Login.htm">Er du allerede bruger?</a>
+                </div>
             </div>
 
+            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
             <script>
@@ -43,57 +45,40 @@
                         return {
                             firstName: "",
                             surName: "",
-                            address1: "",
-                            address2: "",
-                            postCode: "",
-                            phoneNumber: "",
                             email: "",
+                            phoneNumber: "",
+                            address1: "",
+                            postCode: "",
                             password: "",
                             confirmPassword: "",
                             dateOfBirth: "",
-                            junior: false,
-                            newsletter: false,
-                            error: "",
-                            success: ""
+                            addMessage: ""
                         }
                     },
                     methods: {
-                        async addUser(e) {
-                            if (e) e.preventDefault();
-                            this.error = "";
-                            this.success = "";
+
+                        async addUser() {
                             if (this.password !== this.confirmPassword) {
-                                this.error = "Adgangskoderne matcher ikke.";
+                                this.addMessage = "Adgangskoderne matcher ikke.";
                                 return;
                             }
-                            // Basic validation
-                            if (!this.email || !this.password || !this.firstName || !this.surName) {
-                                this.error = "Udfyld alle obligatoriske felter.";
-                                return;
-                            }
-                            const newUser = {
-                                firstName: this.firstName,
-                                surName: this.surName,
-                                email: this.email,
-                                phoneNumber: this.phoneNumber,
-                                address1: this.address1,
-                                address2: this.address2,
-                                postCode: this.postCode,
-                                dateOfBirth: this.dateOfBirth,
-                                junior: this.junior,
-                                newsletter: this.newsletter,
-                                password: this.password
-                            };
                             try {
-                                const response = await fetch(baseUrl, {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify(newUser)
-                                });
-                                if (!response.ok) throw new Error("API fejl: " + response.status);
-                                this.success = "Bruger oprettet!";
-                            } catch (err) {
-                                this.error = err.message;
+                                const response = await axios.post(
+                                    baseUrl,
+                                    {
+                                        firstName: this.firstName,
+                                        surName: this.surName,
+                                        email: this.email,
+                                        phoneNumber: this.phoneNumber,
+                                        address1: this.address1,
+                                        postCode: this.postCode,
+                                        password: this.password,
+                                        dateOfBirth: this.dateOfBirth
+                                    }
+                                );
+                                this.addMessage = `Bruger oprettet! (${response.status} ${response.statusText})`;
+                            } catch (ex) {
+                                this.addMessage = ex.message;
                             }
                         }
                     }
