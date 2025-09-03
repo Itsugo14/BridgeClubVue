@@ -1,3 +1,5 @@
 {
-    "liveServer.settings.port": 5500
+    "liveServer.settings.port": 5500,
+    "appService.defaultWebAppToDeploy": "/subscriptions/fcce1882-b28f-4b11-994d-0eb23894ffb0/resourceGroups/appsvc_windows_northeurope/providers/Microsoft.Web/sites/DanskBridgeforbund",
+    "appService.deploySubpath": "."
 }
