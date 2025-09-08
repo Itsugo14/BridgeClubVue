@@ -20,6 +20,33 @@ Vue.createApp({
         }
     },
     methods: {
+        async login() {
+            this.addMessage = "";
+            this.error = "";
+            if (!this.email || !this.password) {
+                this.addMessage = "Udfyld både email og adgangskode.";
+                return;
+            }
+            try {
+                // Fetch all members and check credentials client-side (for demo; real apps should use backend auth)
+                const response = await fetch(baseUrl);
+                if (!response.ok) throw new Error("API fejl: " + response.status);
+                const members = await response.json();
+                const user = members.find(m => m.email === this.email);
+                if (!user) {
+                    this.addMessage = "Bruger ikke fundet.";
+                    return;
+                }
+                // Password check (for demo only; real apps should never check passwords client-side)
+                if (user.passwordHash && this.password) {
+                    this.addMessage = "Login-funktionalitet kræver backend validering.";
+                } else {
+                    this.addMessage = "Login lykkedes (demo)!";
+                }
+            } catch (err) {
+                this.addMessage = err.message;
+            }
+        },
         async getAllMembers() {
             try {
                 const response = await fetch(baseUrl);
