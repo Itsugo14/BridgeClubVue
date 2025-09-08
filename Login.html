@@ -1,50 +1,78 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta charset="UTF-8">
-        <title>Login</title>
-        <style>
-            body {
-            display: inline-block;
-            padding: 10px;
-            font-size: x-large;
-            background-color: lightgreen;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Login</h1>
-        <form>
-            <label for="username">Brugernavn:</label>
-            <input type="text" id="username" name="username"><br><br>
-            <label for="password">Adgangskode:</label>
-            <input type="password" id="password" name="password"><br><br>
-            <input type="submit" value="Log ind">
-        </form>
-            <div>
-            <a href="C:\GitHub\BridgeProjekt\BridgeClubVue\CreateUser.htm">Er du ikke oprettet?</a>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Login</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Dansk Bridgeforbund</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="Index.html">Forside</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="GetAll.html">Medlemsliste</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="CreateUser.html">Opret Bruger</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="Login.html">Login</a>
+                    </li>
+                </ul>
             </div>
-
-
-         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-         <script>   
-            const baseUrl = "Indsæt baseURL her";
-            Vue.createApp({
-                data() {
-                    return {
-                        Email: "",
-                        Password: ""
-                    }
-                },
-                methods: {
-                    login() {
-                        this.login(baseUrl)
-                    }
+        </div>
+    </nav>
+    <div id="app" class="d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card shadow w-100" style="max-width: 400px;">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Login</h3>
+                <form @submit.prevent="login">
+                    <div class="form-group mb-3">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" v-model="email" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="password">Adgangskode:</label>
+                        <input type="password" id="password" v-model="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Log ind</button>
+                </form>
+                <div class="mt-3 text-center">
+                    <a href="CreateUser.html">Er du ikke oprettet?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
+        </div>
+    </footer>
+    <script>
+        const baseUrl = "Indsæt baseURL her";
+        Vue.createApp({
+            data() {
+                return {
+                    email: "",
+                    password: ""
                 }
-            });
-         </script>
-
-    </body>
+            },
+            methods: {
+                login() {
+                    // Implementér login funktionalitet her
+                    alert('Login-funktionalitet ikke implementeret endnu.');
+                }
+            }
+        }).mount("#app");
+    </script>
+</body>
 </html>

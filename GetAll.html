@@ -1,73 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="da">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <title>Alle medlemmer</title>
-    <style>
-        body {
-            font-size: large;
-            background-color: #e0f7fa;
-            padding: 20px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #888;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #b2ebf2;
-        }
-    </style>
 </head>
 <body>
-    <h1>Medlemsliste</h1>
-    <div id="app">
-        <button @click="getAllMembers">Hent alle medlemmer</button>
-        <table v-if="members.length">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Fornavn</th>
-                    <th>Efternavn</th>
-                    <th>Email</th>
-                    <th>Adresse</th>
-                    <th>Postnummer</th>
-                    <th>Telefon</th>
-                    <th>Fødselsdato</th>
-                    <th>Junior</th>
-                    <th>Nyhedsbrev</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="member in members" :key="member.id">
-                    <td>{{ member.id }}</td>
-                    <td>{{ member.firstName }}</td>
-                    <td>{{ member.surName }}</td>
-                    <td>{{ member.email }}</td>
-                    <td>{{ member.address1 }} {{ member.address2 || '' }}</td>
-                    <td>{{ member.postCode }}</td>
-                    <td>{{ member.phoneNumber }}</td>
-                    <td>{{ member.dateOfBirth ? member.dateOfBirth.split('T')[0] : '' }}</td>
-                    <td>{{ member.junior ? 'Ja' : 'Nej' }}</td>
-                    <td>{{ member.newsletter ? 'Ja' : 'Nej' }}</td>
-                </tr>
-            </tbody>
-        </table>
-        <p v-if="error">{{ error }}</p>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Dansk Bridgeforbund</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="Index.html">Forside</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="GetAll.html">Medlemsliste</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="CreateUser.html">Opret Bruger</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container py-5">
+        <h1 class="mb-4 text-center">Medlemsliste</h1>
+        <div id="app">
+            <div class="mb-3 text-center">
+                <button class="btn btn-primary" @click="getAllMembers">Hent alle medlemmer</button>
+            </div>
+            <div class="table-responsive">
+                <table v-if="members.length" class="table table-bordered table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Fornavn</th>
+                            <th>Efternavn</th>
+                            <th>Email</th>
+                            <th>Adresse</th>
+                            <th>Postnummer</th>
+                            <th>Telefon</th>
+                            <th>Fødselsdato</th>
+                            <th>Junior</th>
+                            <th>Nyhedsbrev</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="member in members" :key="member.id">
+                            <td>{{ member.id }}</td>
+                            <td>{{ member.firstName }}</td>
+                            <td>{{ member.surName }}</td>
+                            <td>{{ member.email }}</td>
+                            <td>{{ member.address1 }} {{ member.address2 || '' }}</td>
+                            <td>{{ member.postCode }}</td>
+                            <td>{{ member.phoneNumber }}</td>
+                            <td>{{ member.dateOfBirth ? member.dateOfBirth.split('T')[0] : '' }}</td>
+                            <td>{{ member.junior ? 'Ja' : 'Nej' }}</td>
+                            <td>{{ member.newsletter ? 'Ja' : 'Nej' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p v-if="error" class="text-danger text-center mt-3">{{ error }}</p>
+        </div>
     </div>
-        <div>
-            <a href="CreateUser.html">Opret Bruger</a>
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
         </div>
-        <div>
-            <a href="Index.html">Tilbage til forside</a>
-        </div>
-
-
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    </footer>
     <script>
         const baseUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/MembersDb";
         Vue.createApp({

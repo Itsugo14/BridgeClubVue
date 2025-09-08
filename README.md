@@ -1,2 +1,2 @@
 # BridgeClubVue
-Frontend Vue Framwork for BridgeClub system
+Frontend Vue Framework for BridgeClub system

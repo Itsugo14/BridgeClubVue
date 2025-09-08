@@ -1,45 +1,54 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta charset="UTF-8">
-        <title>Danmarks Bridgeforbund</title>
-        <style>
-            body {
-            display: inline-block;
-            padding: 10px;
-            font-size: x-large;
-            background-color: lightgreen;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Dansk Bridgeforbund</h1>
-        <div>
-            <a href="CreateUser.html">Opret Bruger</a>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Dansk Bridgeforbund - Forside</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Dansk Bridgeforbund</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="Index.html">Forside</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="GetAll.html">Medlemsliste</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="CreateUser.html">Opret Bruger</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Login</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-        <div> 
-            <a href="GetAll.html">Se brugere</a>
+    </nav>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body text-center">
+                        <h1 class="card-title mb-4">Velkommen til Dansk Bridgeforbund</h1>
+                        <p class="lead mb-4">Her kan du oprette dig som medlem eller se medlemslisten.</p>
+                        <a href="CreateUser.html" class="btn btn-primary btn-lg mb-2 w-100">Opret Bruger</a>
+                        <a href="GetAll.html" class="btn btn-outline-secondary btn-lg w-100">Se brugere</a>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-        <script>
-            const baseUrl = "Indsæt baseURL her";
-            Vue.createApp({
-                data() {
-                    return {
-                        IsLoggedIn: false
-                    }
-                },
-                methods: {
-                    CheckLoginStatus() {
-                        this.IsLoggedIn = false;
-                    }
-                }
-            });
-            app.mount("#app");
-        </script>
-
-    </body>
+    </div>
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
+        </div>
+    </footer>
+</body>
 </html>
