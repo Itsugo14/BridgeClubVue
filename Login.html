@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <title>Login</title>
+        <style>
+            body {
+            display: inline-block;
+            padding: 10px;
+            font-size: x-large;
+            background-color: lightgreen;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Login</h1>
+        <form>
+            <label for="username">Brugernavn:</label>
+            <input type="text" id="username" name="username"><br><br>
+            <label for="password">Adgangskode:</label>
+            <input type="password" id="password" name="password"><br><br>
+            <input type="submit" value="Log ind">
+        </form>
+            <div>
+            <a href="C:\GitHub\BridgeProjekt\BridgeClubVue\CreateUser.htm">Er du ikke oprettet?</a>
+            </div>
+
+
+         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+         <script>   
+            const baseUrl = "Indsæt baseURL her";
+            Vue.createApp({
+                data() {
+                    return {
+                        Email: "",
+                        Password: ""
+                    }
+                },
+                methods: {
+                    login() {
+                        this.login(baseUrl)
+                    }
+                }
+            });
+         </script>
+
+    </body>
+</html>

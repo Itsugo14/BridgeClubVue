@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <title>Danmarks Bridgeforbund</title>
+        <style>
+            body {
+            display: inline-block;
+            padding: 10px;
+            font-size: x-large;
+            background-color: lightgreen;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Dansk Bridgeforbund</h1>
+        <div>
+            <a href="CreateUser.html">Opret Bruger</a>
+        </div>
+        <div> 
+            <a href="GetAll.html">Se brugere</a>
+        </div>
+
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+        <script>
+            const baseUrl = "Indsæt baseURL her";
+            Vue.createApp({
+                data() {
+                    return {
+                        IsLoggedIn: false
+                    }
+                },
+                methods: {
+                    CheckLoginStatus() {
+                        this.IsLoggedIn = false;
+                    }
+                }
+            });
+            app.mount("#app");
+        </script>
+
+    </body>
+</html>

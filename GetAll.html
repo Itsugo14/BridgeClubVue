@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Alle medlemmer</title>
+    <style>
+        body {
+            font-size: large;
+            background-color: #e0f7fa;
+            padding: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #888;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #b2ebf2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Medlemsliste</h1>
+    <div id="app">
+        <button @click="getAllMembers">Hent alle medlemmer</button>
+        <table v-if="members.length">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fornavn</th>
+                    <th>Efternavn</th>
+                    <th>Email</th>
+                    <th>Adresse</th>
+                    <th>Postnummer</th>
+                    <th>Telefon</th>
+                    <th>Fødselsdato</th>
+                    <th>Junior</th>
+                    <th>Nyhedsbrev</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="member in members" :key="member.id">
+                    <td>{{ member.id }}</td>
+                    <td>{{ member.firstName }}</td>
+                    <td>{{ member.surName }}</td>
+                    <td>{{ member.email }}</td>
+                    <td>{{ member.address1 }} {{ member.address2 || '' }}</td>
+                    <td>{{ member.postCode }}</td>
+                    <td>{{ member.phoneNumber }}</td>
+                    <td>{{ member.dateOfBirth ? member.dateOfBirth.split('T')[0] : '' }}</td>
+                    <td>{{ member.junior ? 'Ja' : 'Nej' }}</td>
+                    <td>{{ member.newsletter ? 'Ja' : 'Nej' }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <p v-if="error">{{ error }}</p>
+    </div>
+        <div>
+            <a href="CreateUser.html">Opret Bruger</a>
+        </div>
+        <div>
+            <a href="Index.html">Tilbage til forside</a>
+        </div>
+
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const baseUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/MembersDb";
+        Vue.createApp({
+            data() {
+                return {
+                    members: [],
+                    error: ""
+                }
+            },
+            methods: {
+                async getAllMembers() {
+                    try {
+                        const response = await fetch(baseUrl);
+                        if (!response.ok) throw new Error("API fejl: " + response.status);
+                        this.members = await response.json();
+                        this.error = "";
+                    } catch (err) {
+                        this.error = err.message;
+                        this.members = [];
+                    }
+                }
+            }
+        }).mount("#app");
+    </script>
+</body>
+</html>
