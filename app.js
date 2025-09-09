@@ -28,23 +28,24 @@ Vue.createApp({
                 return;
             }
             try {
-                // Fetch all members and check credentials client-side (for demo; real apps should use backend auth)
-                const response = await fetch(baseUrl);
-                if (!response.ok) throw new Error("API fejl: " + response.status);
-                const members = await response.json();
-                const user = members.find(m => m.email === this.email);
-                if (!user) {
-                    this.addMessage = "Bruger ikke fundet.";
-                    return;
-                }
-                // Password check (for demo only; real apps should never check passwords client-side)
-                if (user.passwordHash && this.password) {
-                    this.addMessage = "Login-funktionalitet kræver backend validering.";
+                // Replace with your actual login endpoint if different
+                const loginUrl = baseUrl + "/login";
+                const response = await axios.post(loginUrl, {
+                    email: this.email,
+                    password: this.password
+                });
+                if (response.status === 200) {
+                    this.addMessage = "Login lykkedes!";
+                    // Optionally handle token/session here
                 } else {
-                    this.addMessage = "Login lykkedes (demo)!";
+                    this.addMessage = "Login mislykkedes.";
                 }
             } catch (err) {
-                this.addMessage = err.message;
+                if (err.response && err.response.data && err.response.data.message) {
+                    this.addMessage = err.response.data.message;
+                } else {
+                    this.addMessage = err.message;
+                }
             }
         },
         async getAllMembers() {
