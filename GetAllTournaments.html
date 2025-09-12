@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Alle turneringer</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Dansk Bridgeforbund</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="Index.html">Forside</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="GetAll.html">Medlemsliste</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="CreateUser.html">Opret Bruger</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Login.html">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container py-5">
+        <h1 class="mb-4 text-center">Turneringsliste</h1>
+        <div id="app">
+            <div class="mb-3 text-center">
+                <button class="btn btn-primary" @click="getAllTournaments">Hent alle turneringer</button>
+            </div>
+            <div class="table-responsive">
+                <table v-if="tournaments.length" class="table table-bordered table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Navn</th>
+                            <th>Beskrivelse</th>
+                            <th>Lokation</th>
+                            <th>Format</th>
+                            <th>Aktiv</th>
+                            <th>Oprettet</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="t in tournaments" :key="t.id">
+                            <td>{{ t.id }}</td>
+                            <td>{{ t.tournamentName }}</td>
+                            <td>{{ t.tournamentDescription }}</td>
+                            <td>{{ t.location }}</td>
+                            <td>{{ t.tournamentFormat }}</td>
+                            <td>{{ t.isActive ? 'Ja' : 'Nej' }}</td>
+                            <td>{{ t.createdAt ? t.createdAt.split('T')[0] : '' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p v-if="error" class="text-danger text-center mt-3">{{ error }}</p>
+        </div>
+    </div>
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
+        </div>
+    </footer>
+    <script>
+    const baseUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/ClubTournamentsDb";
+        Vue.createApp({
+            data() {
+                return {
+                    tournaments: [],
+                    error: ""
+                }
+            },
+            methods: {
+                async getAllTournaments() {
+                    try {
+                        const response = await fetch(baseUrl);
+                        if (!response.ok) throw new Error("API fejl: " + response.status);
+                        this.tournaments = await response.json();
+                        this.error = "";
+                    } catch (err) {
+                        this.error = err.message;
+                        this.tournaments = [];
+                    }
+                }
+            }
+        }).mount("#app");
+    </script>
+</body>
+</html>
