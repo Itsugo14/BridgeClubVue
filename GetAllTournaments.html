@@ -71,29 +71,6 @@
             <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
         </div>
     </footer>
-    <script>
-    const baseUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/ClubTournamentsDb";
-        Vue.createApp({
-            data() {
-                return {
-                    tournaments: [],
-                    error: ""
-                }
-            },
-            methods: {
-                async getAllTournaments() {
-                    try {
-                        const response = await fetch(baseUrl);
-                        if (!response.ok) throw new Error("API fejl: " + response.status);
-                        this.tournaments = await response.json();
-                        this.error = "";
-                    } catch (err) {
-                        this.error = err.message;
-                        this.tournaments = [];
-                    }
-                }
-            }
-        }).mount("#app");
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>

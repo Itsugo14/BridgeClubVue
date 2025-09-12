@@ -124,4 +124,4 @@ Vue.createApp({
             }
         }
     }
-}).mount("#app")
+})

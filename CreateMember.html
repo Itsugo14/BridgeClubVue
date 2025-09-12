@@ -81,53 +81,7 @@
             </div>
         </div>
 
-            <script>
-                const baseUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/MembersDb";
-                Vue.createApp({
-                    data() {
-                        return {
-                            firstName: "",
-                            surName: "",
-                            email: "",
-                            phoneNumber: "",
-                            address1: "",
-                            postCode: "",
-                            password: "",
-                            confirmPassword: "",
-                            dateOfBirth: "",
-                            addMessage: ""
-                        }
-                    },
-                    methods: {
-
-                        async addUser() {
-                            if (this.password !== this.confirmPassword) {
-                                this.addMessage = "Adgangskoderne matcher ikke.";
-                                return;
-                            }
-                            try {
-                                const response = await axios.post(
-                                    baseUrl,
-                                    {
-                                        firstName: this.firstName,
-                                        surName: this.surName,
-                                        email: this.email,
-                                        phoneNumber: this.phoneNumber,
-                                        address1: this.address1,
-                                        postCode: this.postCode,
-                                        password: this.password,
-                                        dateOfBirth: this.dateOfBirth
-                                    }
-                                );
-                                this.addMessage = `Bruger oprettet! (${response.status} ${response.statusText})`;
-                            } catch (ex) {
-                                this.addMessage = ex.message;
-                            }
-                        }
-                    }
-                }).mount("#app")
-                
-            </script>
+            <script src="app.js"></script>
         <footer class="footer mt-auto py-3 bg-light">
             <div class="container text-center">
                 <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
