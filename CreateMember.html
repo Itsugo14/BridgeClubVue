@@ -21,6 +21,12 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="GetAll.html">Medlemsliste</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="GetAllTournaments.html">Turneringsliste</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="CreateTournament.html">Opret Turnering</a>
+                                </li>
                             </ul>
                             <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
                                 <li class="nav-item">
@@ -33,11 +39,12 @@
                         </div>
             </div>
         </nav>
-        <div id="app" class="d-flex justify-content-center align-items-center min-vh-100">
-            <div class="card shadow w-100" style="max-width: 500px;">
+
+        <div class="d-flex justify-content-center align-items-center min-vh-100">
+            <div id="app" class="card shadow w-100" style="max-width: 500px;">
                 <div class="card-body">
                     <h4 class="card-title text-center mb-4">Opret Bruger</h4>
-                    <form @submit.prevent="addUser">
+                    <form @submit.prevent="addMember">
                         <div class="form-group mb-3">
                             <label>Fornavn:</label>
                             <input type="text" required v-model="firstName" class="form-control">

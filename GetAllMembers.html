@@ -19,6 +19,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="GetAll.html">Medlemsliste</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="GetAllTournaments.html">Turneringsliste</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="CreateTournament.html">Opret Turnering</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
                     <li class="nav-item">
@@ -31,45 +37,47 @@
             </div>
         </div>
     </nav>
-    <div class="container py-5">
-        <h1 class="mb-4 text-center">Medlemsliste</h1>
-        <div id="app">
-            <div class="mb-3 text-center">
-                <button class="btn btn-primary" @click="getAllMembers">Hent alle medlemmer</button>
+    <div class="d-flex justify-content-center align-items-center min-vh-100">
+        <div id="app" class="card shadow w-100" style="max-width: 1100px;">
+            <div class="card-body">
+                <h4 class="card-title text-center mb-4">Medlemsliste</h4>
+                <div class="mb-3 text-center">
+                    <button class="btn btn-primary" @click="getAllMembers">Hent alle medlemmer</button>
+                </div>
+                <div class="table-responsive">
+                    <table v-if="members.length" class="table table-bordered table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Fornavn</th>
+                                <th>Efternavn</th>
+                                <th>Email</th>
+                                <th>Adresse</th>
+                                <th>Postnummer</th>
+                                <th>Telefon</th>
+                                <th>Fødselsdato</th>
+                                <th>Junior</th>
+                                <th>Nyhedsbrev</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="member in members" :key="member.id">
+                                <td>{{ member.id }}</td>
+                                <td>{{ member.firstName }}</td>
+                                <td>{{ member.surName }}</td>
+                                <td>{{ member.email }}</td>
+                                <td>{{ member.address1 }} {{ member.address2 || '' }}</td>
+                                <td>{{ member.postCode }}</td>
+                                <td>{{ member.phoneNumber }}</td>
+                                <td>{{ member.dateOfBirth ? member.dateOfBirth.split('T')[0] : '' }}</td>
+                                <td>{{ member.junior ? 'Ja' : 'Nej' }}</td>
+                                <td>{{ member.newsletter ? 'Ja' : 'Nej' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p v-if="error" class="text-danger text-center mt-3">{{ error }}</p>
             </div>
-            <div class="table-responsive">
-                <table v-if="members.length" class="table table-bordered table-striped">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>ID</th>
-                            <th>Fornavn</th>
-                            <th>Efternavn</th>
-                            <th>Email</th>
-                            <th>Adresse</th>
-                            <th>Postnummer</th>
-                            <th>Telefon</th>
-                            <th>Fødselsdato</th>
-                            <th>Junior</th>
-                            <th>Nyhedsbrev</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="member in members" :key="member.id">
-                            <td>{{ member.id }}</td>
-                            <td>{{ member.firstName }}</td>
-                            <td>{{ member.surName }}</td>
-                            <td>{{ member.email }}</td>
-                            <td>{{ member.address1 }} {{ member.address2 || '' }}</td>
-                            <td>{{ member.postCode }}</td>
-                            <td>{{ member.phoneNumber }}</td>
-                            <td>{{ member.dateOfBirth ? member.dateOfBirth.split('T')[0] : '' }}</td>
-                            <td>{{ member.junior ? 'Ja' : 'Nej' }}</td>
-                            <td>{{ member.newsletter ? 'Ja' : 'Nej' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <p v-if="error" class="text-danger text-center mt-3">{{ error }}</p>
         </div>
     </div>
     <footer class="footer mt-auto py-3 bg-light">

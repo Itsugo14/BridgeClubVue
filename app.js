@@ -1,11 +1,15 @@
 // use https (http secure).
 // http (non-secure) will make the app complain about mixed content when running the app from Azure
-const baseUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/MembersDb";
+const membersUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/Membersdb";
+const tournamentUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/ClubTournamentsDb";
     
 Vue.createApp({
     data() {
         return {
+            // Member properties
             members: [],
+            // Tournament list for GetAllTournaments
+            tournaments: [],
             firstName: "",
             surName: "",
             email: "",
@@ -16,41 +20,50 @@ Vue.createApp({
             confirmPassword: "",
             dateOfBirth: "",
             addMessage: "",
-            error: ""
+            error: "",
+            // Tournament properties
+            id: null,
+            tournamentName: "",
+            tournamentDescription: "",
+            location: "",
+            tournamentFormat: "",
+            tournamentDate: "",
+            createdAt: "",
+            isActive: true,
         }
     },
+        
     methods: {
-        async login() {
-            this.addMessage = "";
-            this.error = "";
-            if (!this.email || !this.password) {
-                this.addMessage = "Udfyld både email og adgangskode.";
-                return;
-            }
+        async getAllTournaments() {
             try {
-                // Replace with your actual login endpoint if different
-                const loginUrl = baseUrl + "/login";
-                const response = await axios.post(loginUrl, {
-                    email: this.email,
-                    password: this.password
-                });
-                if (response.status === 200) {
-                    this.addMessage = "Login lykkedes!";
-                    // Optionally handle token/session here
-                } else {
-                    this.addMessage = "Login mislykkedes.";
-                }
+                const response = await fetch(tournamentUrl);
+                if (!response.ok) throw new Error("API fejl: " + response.status);
+                this.tournaments = await response.json();
+                this.error = "";
             } catch (err) {
-                if (err.response && err.response.data && err.response.data.message) {
-                    this.addMessage = err.response.data.message;
-                } else {
-                    this.addMessage = err.message;
-                }
+                this.error = err.message;
+                this.tournaments = [];
+            }
+        },
+        async addTournament() {
+            try {
+                const payload = {
+                    tournamentName: this.tournamentName,
+                    tournamentDescription: this.tournamentDescription,
+                    location: this.location,
+                    tournamentFormat: this.tournamentFormat,
+                    tournamentDate: this.tournamentDate,
+                    isActive: this.isActive
+                };
+                const response = await axios.post(tournamentUrl, payload);
+                this.addMessage = `Turnering oprettet! (${response.status} ${response.statusText})`;
+            } catch (ex) {
+                this.addMessage = ex.message;
             }
         },
         async getAllMembers() {
             try {
-                const response = await fetch(baseUrl);
+                const response = await fetch(membersUrl);
                 if (!response.ok) throw new Error("API fejl: " + response.status);
                 this.members = await response.json();
                 this.error = "";
@@ -59,34 +72,14 @@ Vue.createApp({
                 this.members = [];
             }
         },
-        async GetById(id) {
-            try {
-                const response = await fetch(baseUrl + "/" + id);
-                if (!response.ok) throw new Error("API fejl: " + response.status);
-                return await response.json();
-            } catch (err) {
-                this.error = err.message;
-                return null;
-            }
-        },
-        async deleteById(id) {
-            try {
-                const response = await fetch(baseUrl + "/" + id, { method: "DELETE" });
-                if (!response.ok) throw new Error("API fejl: " + response.status);
-                return await response.json();
-            } catch (err) {
-                this.error = err.message;
-                return null;
-            }
-        },
-        async addUser() {
+        async addMember() {
             if (this.password !== this.confirmPassword) {
                 this.addMessage = "Adgangskoderne matcher ikke.";
                 return;
             }
             try {
                 const response = await axios.post(
-                    baseUrl,
+                    membersUrl,
                     {
                         firstName: this.firstName,
                         surName: this.surName,
@@ -103,25 +96,5 @@ Vue.createApp({
                 this.addMessage = ex.message;
             }
         },
-        async updateMember(id) {
-            try {
-                const response = await axios.put(
-                    baseUrl + "/" + id,
-                    {
-                        firstName: this.firstName,
-                        surName: this.surName,
-                        email: this.email,
-                        phoneNumber: this.phoneNumber,
-                        address1: this.address1,
-                        postCode: this.postCode,
-                        password: this.password,
-                        dateOfBirth: this.dateOfBirth
-                    }
-                );
-                this.addMessage = `Bruger opdateret! (${response.status} ${response.statusText})`;
-            } catch (ex) {
-                this.addMessage = ex.message;
-            }
-        }
     }
-})
+}).mount("#app")
