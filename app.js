@@ -2,6 +2,36 @@
 // http (non-secure) will make the app complain about mixed content when running the app from Azure
 const membersUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/Membersdb";
 const tournamentUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/ClubTournamentsDb";
+
+// Mocking support
+const isMock = location.hostname === "localhost";
+
+const mockMembers = [
+    {
+        id: 1,
+        firstName: "Alice",
+        surName: "Smith",
+        email: "alice@example.com",
+        phoneNumber: "11111111",
+        address1: "Main St 1",
+        postCode: "1000",
+        dateOfBirth: "1990-01-01",
+        junior: false,
+        newsletter: true
+    }
+];
+
+const mockTournaments = [
+    {
+        id: 1,
+        tournamentName: "Mock Cup",
+        tournamentDescription: "A test tournament",
+        location: "Test Hall",
+        tournamentFormat: "Pairs",
+        isActive: true,
+        createdAt: "2025-01-01"
+    }
+];
     
 Vue.createApp({
     data() {
@@ -35,6 +65,11 @@ Vue.createApp({
         
     methods: {
         async getAllTournaments() {
+            if (isMock) {
+                this.tournaments = mockTournaments;
+                this.error = "";
+                return;
+            }
             try {
                 const response = await fetch(tournamentUrl);
                 if (!response.ok) throw new Error("API fejl: " + response.status);
@@ -62,6 +97,11 @@ Vue.createApp({
             }
         },
         async getAllMembers() {
+            if (isMock) {
+                this.members = mockMembers;
+                this.error = "";
+                return;
+            }
             try {
                 const response = await fetch(membersUrl);
                 if (!response.ok) throw new Error("API fejl: " + response.status);
