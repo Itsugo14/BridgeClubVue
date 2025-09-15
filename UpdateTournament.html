@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Opdater Turnering</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Dansk Bridgeforbund</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="Index.html">Forside</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="GetAllMembers.html">Medlemsliste</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="GetAllTournaments.html">Turneringsliste</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="CreateTournament.html">Opret Turnering</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="CreateMember.html">Opret Bruger</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card shadow w-100" style="max-width: 500px;">
+            <div class="card-body">
+                <h4 class="card-title text-center mb-4">Opdater Turnering</h4>
+                <form>
+                    <div class="form-group mb-3">
+                        <label for="TournamentName">Navn</label>
+                        <input type="text" id="TournamentName" name="TournamentName" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="TournamentDescription">Beskrivelse</label>
+                        <textarea id="TournamentDescription" name="TournamentDescription" class="form-control"></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="Location">Lokation</label>
+                        <input type="text" id="Location" name="Location" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="TournamentFormat">Format</label>
+                        <select id="TournamentFormat" name="TournamentFormat" class="form-control" required>
+                            <option value="">Vælg format</option>
+                            <option value="Pairs">Par</option>
+                            <option value="Teams">Hold</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="TournamentDate">Dato</label>
+                        <input type="date" id="TournamentDate" name="TournamentDate" class="form-control" required>
+                    </div>
+                    <div class="form-group mb-3 form-check">
+                        <input type="checkbox" id="IsActive" name="IsActive" class="form-check-input">
+                        <label class="form-check-label" for="IsActive">Aktiv</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Opdater turnering</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
+        </div>
+    </footer>
+    <!-- Ingen JavaScript logik -->
+</body>
+</html>

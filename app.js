@@ -80,7 +80,7 @@ Vue.createApp({
                 this.tournaments = [];
             }
         },
-        async addTournament() {
+    async addTournament() {
             try {
                 const payload = {
                     id: 0,
@@ -94,6 +94,54 @@ Vue.createApp({
                 };
                 const response = await axios.post(tournamentUrl, payload);
                 this.addMessage = `Turnering oprettet! (${response.status} ${response.statusText})`;
+            } catch (ex) {
+                this.addMessage = ex.message;
+            }
+        },
+
+        async deleteTournament(id) {
+            if (!confirm('Er du sikker på, at du vil slette denne turnering?')) return;
+            try {
+                const response = await axios.delete(`${tournamentUrl}/${id}`);
+                this.addMessage = `Turnering slettet! (${response.status} ${response.statusText})`;
+                // Refresh list
+                await this.getAllTournaments();
+            } catch (ex) {
+                this.addMessage = ex.message;
+            }
+        },
+
+        updateTournament(tournament) {
+            // Prefill form fields for editing
+            this.id = tournament.id;
+            this.tournamentName = tournament.tournamentName;
+            this.tournamentDescription = tournament.tournamentDescription;
+            this.location = tournament.location;
+            this.tournamentFormat = tournament.tournamentFormat;
+            this.tournamentDate = tournament.tournamentDate ? tournament.tournamentDate.split('T')[0] : '';
+            this.isActive = tournament.isActive;
+            // Optionally scroll to or focus the form
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        async saveTournament() {
+            // Save changes to an existing tournament (PUT)
+            if (!this.id) return;
+            try {
+                const payload = {
+                    id: this.id,
+                    tournamentName: this.tournamentName,
+                    tournamentDescription: this.tournamentDescription,
+                    location: this.location,
+                    tournamentFormat: this.tournamentFormat,
+                    tournamentDate: this.tournamentDate,
+                    createdAt: new Date().toISOString(),
+                    isActive: this.isActive
+                };
+                const response = await axios.put(`${tournamentUrl}/${this.id}`, payload);
+                this.addMessage = `Turnering opdateret! (${response.status} ${response.statusText})`;
+                this.id = null;
+                await this.getAllTournaments();
             } catch (ex) {
                 this.addMessage = ex.message;
             }

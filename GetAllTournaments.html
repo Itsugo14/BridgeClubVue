@@ -52,6 +52,7 @@
                                 <th>Format</th>
                                 <th>Aktiv</th>
                                 <th>Oprettet</th>
+                                <th>Handlinger</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,6 +64,10 @@
                                 <td>{{ t.tournamentFormat }}</td>
                                 <td>{{ t.isActive ? 'Ja' : 'Nej' }}</td>
                                 <td>{{ t.createdAt ? t.createdAt.split('T')[0] : '' }}</td>
+                                <td>
+                                    <a class="btn btn-sm btn-warning mr-2" :href="'UpdateTournament.html?id=' + t.id">Opdater</a>
+                                    <button class="btn btn-sm btn-danger" @click="deleteTournament(t.id)">Slet</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -76,6 +81,11 @@
             <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
         </div>
     </footer>
-    <script src="app.js"></script>
+        <script src="app.js"></script>
+        <script>
+            function goToUpdatePage(id) {
+                window.location.href = 'UpdateTournament.html?id=' + encodeURIComponent(id);
+            }
+        </script>
 </body>
 </html>
