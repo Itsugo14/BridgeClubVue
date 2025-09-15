@@ -62,7 +62,6 @@ Vue.createApp({
             isActive: true,
         }
     },
-        
     methods: {
         async getAllTournaments() {
             if (isMock) {
@@ -80,7 +79,7 @@ Vue.createApp({
                 this.tournaments = [];
             }
         },
-    async addTournament() {
+        async addTournament() {
             try {
                 const payload = {
                     id: 0,
@@ -98,7 +97,6 @@ Vue.createApp({
                 this.addMessage = ex.message;
             }
         },
-
         async deleteTournament(id) {
             if (!confirm('Er du sikker på, at du vil slette denne turnering?')) return;
             try {
@@ -110,7 +108,6 @@ Vue.createApp({
                 this.addMessage = ex.message;
             }
         },
-
         updateTournament(tournament) {
             // Prefill form fields for editing
             this.id = tournament.id;
@@ -123,7 +120,6 @@ Vue.createApp({
             // Optionally scroll to or focus the form
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
-
         async saveTournament() {
             // Save changes to an existing tournament (PUT)
             if (!this.id) return;
@@ -187,4 +183,4 @@ Vue.createApp({
             }
         },
     }
-}).mount("#app")
+}).mount("#app");
