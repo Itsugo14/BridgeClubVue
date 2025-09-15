@@ -83,11 +83,13 @@ Vue.createApp({
         async addTournament() {
             try {
                 const payload = {
+                    id: 0,
                     tournamentName: this.tournamentName,
                     tournamentDescription: this.tournamentDescription,
                     location: this.location,
                     tournamentFormat: this.tournamentFormat,
                     tournamentDate: this.tournamentDate,
+                    createdAt: new Date().toISOString(),
                     isActive: this.isActive
                 };
                 const response = await axios.post(tournamentUrl, payload);
