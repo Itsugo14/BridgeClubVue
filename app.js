@@ -3,54 +3,22 @@
 const membersUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/Membersdb";
 const tournamentUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/ClubTournamentsDb";
 
-// Mocking support
-const isMock = location.hostname === "localhost";
-
-const mockMembers = [
-    {
-        id: 1,
-        firstName: "Alice",
-        surName: "Smith",
-        email: "alice@example.com",
-        phoneNumber: "11111111",
-        address1: "Main St 1",
-        postCode: "1000",
-        dateOfBirth: "1990-01-01",
-        junior: false,
-        newsletter: true
-    }
-];
-
-const mockTournaments = [
-    {
-        id: 1,
-        tournamentName: "Mock Cup",
-        tournamentDescription: "A test tournament",
-        location: "Test Hall",
-        tournamentFormat: "Pairs",
-        isActive: true,
-        createdAt: "2025-01-01"
-    }
-];
-    
 Vue.createApp({
     data() {
         return {
             // Member properties
-            members: [],
-            // Tournament list for GetAllTournaments
-            tournaments: [],
+            id: null,
             firstName: "",
             surName: "",
             email: "",
             phoneNumber: "",
             address1: "",
+            address2: "",
             postCode: "",
-            password: "",
-            confirmPassword: "",
             dateOfBirth: "",
-            addMessage: "",
-            error: "",
+            junior: true,
+            newsletter: true,
+            password: "",
             // Tournament properties
             id: null,
             tournamentName: "",
@@ -60,15 +28,16 @@ Vue.createApp({
             tournamentDate: "",
             createdAt: "",
             isActive: true,
+            // Frontend properties
+            members: [],
+            tournaments: [],
+            confirmPassword: "",
+            addMessage: "",
+            error: ""
         }
     },
     methods: {
         async getAllTournaments() {
-            if (isMock) {
-                this.tournaments = mockTournaments;
-                this.error = "";
-                return;
-            }
             try {
                 const response = await fetch(tournamentUrl);
                 if (!response.ok) throw new Error("API fejl: " + response.status);
@@ -120,34 +89,7 @@ Vue.createApp({
             // Optionally scroll to or focus the form
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
-        async saveTournament() {
-            // Save changes to an existing tournament (PUT)
-            if (!this.id) return;
-            try {
-                const payload = {
-                    id: this.id,
-                    tournamentName: this.tournamentName,
-                    tournamentDescription: this.tournamentDescription,
-                    location: this.location,
-                    tournamentFormat: this.tournamentFormat,
-                    tournamentDate: this.tournamentDate,
-                    createdAt: new Date().toISOString(),
-                    isActive: this.isActive
-                };
-                const response = await axios.put(`${tournamentUrl}/${this.id}`, payload);
-                this.addMessage = `Turnering opdateret! (${response.status} ${response.statusText})`;
-                this.id = null;
-                await this.getAllTournaments();
-            } catch (ex) {
-                this.addMessage = ex.message;
-            }
-        },
         async getAllMembers() {
-            if (isMock) {
-                this.members = mockMembers;
-                this.error = "";
-                return;
-            }
             try {
                 const response = await fetch(membersUrl);
                 if (!response.ok) throw new Error("API fejl: " + response.status);
