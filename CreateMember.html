@@ -11,80 +11,72 @@
 
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Dansk Bridgeforbund</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="Index.html">Forside</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="GetAllMembers.html">Medlemsliste</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="GetAllTournaments.html">Turneringsliste</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="CreateTournament.html">Opret Turnering</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="CreateMember.html">Opret Bruger</a>
-                    </li>
-                </ul>
-            </div>
+            <a class="navbar-brand" href="Index.html">Dansk Bridgeforbund</a>
+            <ul class="navbar-nav flex-row flex-wrap">
+                <li class="nav-item px-2">
+                    <a class="nav-link" href="GetAllMembers.html">Medlemsliste</a>
+                </li>
+                <li class="nav-item px-2">
+                    <a class="nav-link" href="GetAllTournaments.html">Turneringsliste</a>
+                </li>
+                <li class="nav-item px-2">
+                    <a class="nav-link" href="CreateTournament.html">Opret Turnering</a>
+                </li>
+                <li class="nav-item px-2">
+                    <a class="nav-link" href="CreateMember.html">Opret Bruger</a>
+                </li>
+            </ul>
         </div>
     </nav>
-
-        <div class="d-flex justify-content-center align-items-center min-vh-100">
-            <div id="app" class="card shadow w-100" style="max-width: 500px;">
-                <div class="card-body">
-                    <h4 class="card-title text-center mb-4">Opret Bruger</h4>
-                    <form @submit.prevent="addMember">
-                        <div class="form-group mb-3">
-                            <label>Fornavn:</label>
-                            <input type="text" required v-model="firstName" class="form-control">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label>Efternavn:</label>
-                            <input type="text" required v-model="surName" class="form-control">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label>Email:</label>
-                            <input type="text" required v-model="email" class="form-control">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label>Telefon nummer:</label>
-                            <input type="text" required v-model="phoneNumber" class="form-control">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label>Adresse:</label>
-                            <input type="text" required v-model="address1" class="form-control">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label>Postnummer:</label>
-                            <input type="text" required v-model="postCode" class="form-control">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label>Adgangskode:</label>
-                            <input type="password" required v-model="password" class="form-control">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label>Bekræft adgangskode:</label>
-                            <input type="password" required v-model="confirmPassword" class="form-control">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label>Fødselsdato:</label>
-                            <input type="date" required v-model="dateOfBirth" class="form-control">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Opret bruger</button>
-                        <p v-if="addMessage" class="mt-3 text-center">{{ addMessage }}</p>
-                    </form>
-                </div>
+    <div class="d-flex justify-content-center align-items-center min-vh-100">
+        <div id="app" class="card shadow w-100" style="max-width: 500px;">
+            <div class="card-body">
+                <h4 class="card-title text-center mb-4">Opret Bruger</h4>
+                <form @submit.prevent="addMember">
+                    <div class="form-group mb-3">
+                        <label>Fornavn:</label>
+                        <input type="text" required v-model="firstName" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Efternavn:</label>
+                        <input type="text" required v-model="surName" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Email:</label>
+                        <input type="text" required v-model="email" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Telefon nummer:</label>
+                        <input type="text" required v-model="phoneNumber" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Adresse:</label>
+                        <input type="text" required v-model="address1" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Postnummer:</label>
+                        <input type="text" required v-model="postCode" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Adgangskode:</label>
+                        <input type="password" required v-model="password" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Bekræft adgangskode:</label>
+                        <input type="password" required v-model="confirmPassword" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Fødselsdato:</label>
+                        <input type="date" required v-model="dateOfBirth" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Opret bruger</button>
+                    <p v-if="addMessage" class="mt-3 text-center">{{ addMessage }}</p>
+                </form>
             </div>
         </div>
+    </div>
         <footer class="footer mt-auto py-4 bg-light border-top">
         <div class="container">
             <div class="row text-center text-md-left">
