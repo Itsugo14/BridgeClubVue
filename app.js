@@ -33,12 +33,37 @@ Vue.createApp({
             tournaments: [],
             confirmPassword: "",
             addMessage: "",
-            error: ""
+            error: "",
+            // Inline update form
+            showUpdate: false
         }
     },
     methods: {
+        showUpdateForm(t) {
+            this.showUpdate = true;
+            this.id = t.id;
+            this.tournamentName = t.tournamentName;
+            this.tournamentDescription = t.tournamentDescription;
+            this.location = t.location;
+            this.tournamentFormat = t.tournamentFormat;
+            this.tournamentDate = Array.isArray(t.tournamentDates) && t.tournamentDates.length > 0 ? t.tournamentDates[0].split('T')[0] : "";
+            this.isActive = t.isActive;
+            this.createdAt = t.createdAt || "";
+            this.addMessage = "";
+            this.$nextTick(() => {
+                const el = document.querySelector('[ref=updateForm]');
+                if (el) el.scrollIntoView({behavior: 'smooth'});
+            });
+        },
         async getAllTournaments() {
-            this.getAllTournaments(tournamentUrl)
+            try {
+                const response = await axios.get(tournamentUrl);
+                this.tournaments = response.data;
+                this.error = "";
+            } catch (err) {
+                this.error = err.message;
+                this.tournaments = [];
+            }
         },
         async addTournament() {
             try {
@@ -48,7 +73,8 @@ Vue.createApp({
                     tournamentDescription: this.tournamentDescription,
                     location: this.location,
                     tournamentFormat: this.tournamentFormat,
-                    tournamentDate: this.tournamentDate,
+                    tournamentDates: this.tournamentDate ? [this.tournamentDate] : [],
+                    tournamentDatesString: "", // set as needed
                     createdAt: new Date().toISOString(),
                     isActive: this.isActive
                 };
@@ -72,14 +98,19 @@ Vue.createApp({
         async updateTournament() {
             const url = tournamentUrl + "/" + this.id;
             try {
+                let createdAt = this.createdAt;
+                if (!createdAt) {
+                    createdAt = new Date().toISOString();
+                }
                 const payload = {
                     id: this.id,
                     tournamentName: this.tournamentName,
                     tournamentDescription: this.tournamentDescription,
                     location: this.location,
                     tournamentFormat: this.tournamentFormat,
-                    tournamentDate: this.tournamentDate,
-                    createdAt: this.createdAt,
+                    tournamentDates: this.tournamentDate ? [this.tournamentDate] : [],
+                    tournamentDatesString: "", // set as needed
+                    createdAt: createdAt,
                     isActive: this.isActive
                 };
                 const response = await axios.put(url, payload);
