@@ -38,15 +38,7 @@ Vue.createApp({
     },
     methods: {
         async getAllTournaments() {
-            try {
-                const response = await fetch(tournamentUrl);
-                if (!response.ok) throw new Error("API fejl: " + response.status);
-                this.tournaments = await response.json();
-                this.error = "";
-            } catch (err) {
-                this.error = err.message;
-                this.tournaments = [];
-            }
+            this.getAllTournaments(tournamentUrl)
         },
         async addTournament() {
             try {
@@ -77,17 +69,25 @@ Vue.createApp({
                 this.addMessage = ex.message;
             }
         },
-        updateTournament(tournament) {
-            // Prefill form fields for editing
-            this.id = tournament.id;
-            this.tournamentName = tournament.tournamentName;
-            this.tournamentDescription = tournament.tournamentDescription;
-            this.location = tournament.location;
-            this.tournamentFormat = tournament.tournamentFormat;
-            this.tournamentDate = tournament.tournamentDate ? tournament.tournamentDate.split('T')[0] : '';
-            this.isActive = tournament.isActive;
-            // Optionally scroll to or focus the form
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        async updateTournament() {
+            const url = tournamentUrl + "/" + this.id;
+            try {
+                const payload = {
+                    id: this.id,
+                    tournamentName: this.tournamentName,
+                    tournamentDescription: this.tournamentDescription,
+                    location: this.location,
+                    tournamentFormat: this.tournamentFormat,
+                    tournamentDate: this.tournamentDate,
+                    createdAt: this.createdAt,
+                    isActive: this.isActive
+                };
+                const response = await axios.put(url, payload);
+                this.addMessage = "response " + response.status + " " + response.statusText;
+                await this.getAllTournaments();
+            } catch (ex) {
+                alert(ex.message);
+            }
         },
         async getAllMembers() {
             try {
@@ -123,6 +123,6 @@ Vue.createApp({
             } catch (ex) {
                 this.addMessage = ex.message;
             }
-        },
+        }
     }
 }).mount("#app");
