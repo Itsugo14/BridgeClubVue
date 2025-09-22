@@ -25,7 +25,9 @@ Vue.createApp({
             tournamentDescription: "",
             location: "",
             tournamentFormat: "",
-            tournamentDate: "",
+            numDates: 1,
+            tournamentDates: [""],
+            tournamentDatesString: "",
             createdAt: "",
             isActive: true,
             // Frontend properties
@@ -40,6 +42,15 @@ Vue.createApp({
             selectedMemberId: "",
             selectedTournamentId: "",
             joinMessage: ""
+        }
+    },
+    watch: {
+        numDates(newVal, oldVal) {
+            if (newVal > oldVal) {
+                for (let i = oldVal; i < newVal; i++) this.tournamentDates.push("");
+            } else if (newVal < oldVal) {
+                this.tournamentDates.splice(newVal);
+            }
         }
     },
     methods: {
@@ -64,7 +75,17 @@ Vue.createApp({
             this.tournamentDescription = t.tournamentDescription;
             this.location = t.location;
             this.tournamentFormat = t.tournamentFormat;
-            this.tournamentDate = Array.isArray(t.tournamentDates) && t.tournamentDates.length > 0 ? t.tournamentDates[0].split('T')[0] : "";
+            // Support both array and string for TournamentDates
+            if (Array.isArray(t.tournamentDates)) {
+                this.tournamentDates = t.tournamentDates.map(d => d.split('T')[0]);
+                this.tournamentDatesString = this.tournamentDates.join(",");
+            } else if (typeof t.tournamentDatesString === 'string') {
+                this.tournamentDates = t.tournamentDatesString.split(',').map(s => s.trim());
+                this.tournamentDatesString = t.tournamentDatesString;
+            } else {
+                this.tournamentDates = [];
+                this.tournamentDatesString = "";
+            }
             this.isActive = t.isActive;
             this.createdAt = t.createdAt || "";
             this.addMessage = "";
@@ -84,22 +105,27 @@ Vue.createApp({
             }
         },
         async addTournament() {
+            // Validate all date fields are filled
+            const cleanedDates = this.tournamentDates.map(d => (d || '').trim()).filter(d => d);
+            if (cleanedDates.length !== this.numDates) {
+                this.addMessage = "Udfyld alle dato-felter.";
+                return;
+            }
             try {
+                this.tournamentDatesString = cleanedDates.join(',');
                 const payload = {
-                    id: 0,
                     tournamentName: this.tournamentName,
                     tournamentDescription: this.tournamentDescription,
                     location: this.location,
                     tournamentFormat: this.tournamentFormat,
-                    tournamentDates: this.tournamentDate ? [this.tournamentDate] : [],
-                    tournamentDatesString: "", // set as needed
+                    tournamentDatesString: this.tournamentDatesString,
                     createdAt: new Date().toISOString(),
                     isActive: this.isActive
                 };
                 const response = await axios.post(tournamentUrl, payload);
                 this.addMessage = `Turnering oprettet! (${response.status} ${response.statusText})`;
             } catch (ex) {
-                this.addMessage = ex.message;
+                this.addMessage = ex.response?.data?.message || ex.message;
             }
         },
         async deleteTournament(id) {
@@ -120,14 +146,14 @@ Vue.createApp({
                 if (!createdAt) {
                     createdAt = new Date().toISOString();
                 }
+                const datesString = Array.isArray(this.tournamentDates) ? this.tournamentDates.join(",") : "";
                 const payload = {
                     id: this.id,
                     tournamentName: this.tournamentName,
                     tournamentDescription: this.tournamentDescription,
                     location: this.location,
                     tournamentFormat: this.tournamentFormat,
-                    tournamentDates: this.tournamentDate ? [this.tournamentDate] : [],
-                    tournamentDatesString: "", // set as needed
+                    tournamentDatesString: datesString,
                     createdAt: createdAt,
                     isActive: this.isActive
                 };
