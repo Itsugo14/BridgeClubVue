@@ -107,18 +107,25 @@ Vue.createApp({
         async addTournament() {
             // Validate all date fields are filled
             const cleanedDates = this.tournamentDates.map(d => (d || '').trim()).filter(d => d);
-            if (cleanedDates.length !== this.numDates) {
+                if (cleanedDates.length === 0) {
                 this.addMessage = "Udfyld alle dato-felter.";
                 return;
             }
+                // Convert to ISO strings for backend
+                const isoDates = cleanedDates.map(d => {
+                    // If already ISO, return as is, else convert
+                    if (d.length > 10) return d;
+                    return new Date(d).toISOString();
+                });
+                this.tournamentDatesString = isoDates.join(',');
             try {
-                this.tournamentDatesString = cleanedDates.join(',');
                 const payload = {
                     tournamentName: this.tournamentName,
                     tournamentDescription: this.tournamentDescription,
                     location: this.location,
                     tournamentFormat: this.tournamentFormat,
-                    tournamentDatesString: this.tournamentDatesString,
+                        tournamentDates: isoDates, // REQUIRED ARRAY
+                        tournamentDatesString: this.tournamentDatesString,
                     createdAt: new Date().toISOString(),
                     isActive: this.isActive
                 };
