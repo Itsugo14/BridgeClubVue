@@ -16,16 +16,16 @@
             </a>
             <ul class="navbar-nav flex-row flex-wrap">
                 <li class="nav-item px-2">
-                    <a class="nav-link" href="GetAllMembers.html">Medlemsliste</a>
+                    <a class="nav-link" href="Member/GetAllMembers.html">Medlemsliste</a>
                 </li>
                 <li class="nav-item px-2">
-                    <a class="nav-link" href="GetAllTournaments.html">Turneringsliste</a>
+                    <a class="nav-link" href="Tournament/GetAllTournaments.html">Turneringsliste</a>
                 </li>
                 <li class="nav-item px-2">
-                    <a class="nav-link" href="CreateTournament.html">Opret Turnering</a>
+                    <a class="nav-link" href="Tournament/CreateTournament.html">Opret Turnering</a>
                 </li>
                 <li class="nav-item px-2">
-                    <a class="nav-link" href="CreateMember.html">Opret Bruger</a>
+                    <a class="nav-link" href="Member/CreateMember.html">Opret Bruger</a>
                 </li>
             </ul>
         </div>
@@ -70,9 +70,51 @@
             </div>
         </div>
     </div>
-    <footer class="footer mt-auto py-3 bg-light">
-        <div class="container text-center">
-            <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
+    <footer class="footer mt-auto py-4 bg-light border-top">
+        <div class="container">
+            <div class="row text-center text-md-left">
+                <div class="col-12 col-md-3 mb-3">
+                    <h6 class="text-uppercase font-weight-bold">Kontakt</h6>
+                    <ul class="list-unstyled">
+                        <li>Email: info@bridgeforbund.dk</li>
+                        <li>Telefon: 12 34 56 78</li>
+                        <li>Adresse: Brogade 1, 1000 København</li>
+                    </ul>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <h6 class="text-uppercase font-weight-bold">Distrikter</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted">Nordjylland</a></li>
+                        <li><a href="#" class="text-muted">Midtjylland</a></li>
+                        <li><a href="#" class="text-muted">Syddanmark</a></li>
+                        <li><a href="#" class="text-muted">Sjælland</a></li>
+                    </ul>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <h6 class="text-uppercase font-weight-bold">Quicklinks</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="Index.html" class="text-muted">Forside</a></li>
+                        <li><a href="Member/GetAllMembers.html" class="text-muted">Medlemsliste</a></li>
+                        <li><a href="Tournament/GetAllTournaments.html" class="text-muted">Turneringsliste</a></li>
+                        <li><a href="Member/CreateMember.html" class="text-muted">Opret Bruger</a></li>
+                        <li><a href="Tournament/CreateTournament.html" class="text-muted">Opret Turnering</a></li>
+                    </ul>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <h6 class="text-uppercase font-weight-bold">Nyhedsbrev</h6>
+                    <form>
+                        <div class="form-group mb-2">
+                            <input type="email" class="form-control form-control-sm" placeholder="Din email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100">Tilmeld</button>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center mt-3">
+                    <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
+                </div>
+            </div>
         </div>
     </footer>
     <script src="app.js"></script>
