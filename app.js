@@ -6,8 +6,8 @@ const tournamentUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azu
 Vue.createApp({
     data() {
         return {
-            // Member properties
-            id: null,
+            // --- Member properties ---
+            memberId: null,
             firstName: "",
             surName: "",
             email: "",
@@ -19,8 +19,11 @@ Vue.createApp({
             junior: true,
             newsletter: true,
             password: "",
-            // Tournament properties
-            id: null,
+            confirmPassword: "",
+            members: [],
+
+            // --- Tournament properties ---
+            tournamentId: null,
             tournamentName: "",
             tournamentDescription: "",
             location: "",
@@ -30,15 +33,19 @@ Vue.createApp({
             tournamentDatesString: "",
             createdAt: "",
             isActive: true,
-            // Frontend properties
-            members: [],
             tournaments: [],
-            confirmPassword: "",
+
+            // --- Pair properties ---
+            pairs: [],
+            pairMember1: null,
+            pairMember2: null,
+            pairAgreed: false,
+            pairAddMessage: "",
+
+            // --- Frontend/UI properties ---
             addMessage: "",
             error: "",
-            // Inline update form
             showUpdate: false,
-            // Join tournament form
             selectedMemberId: "",
             selectedTournamentId: "",
             joinMessage: ""
@@ -54,18 +61,114 @@ Vue.createApp({
         }
     },
     methods: {
-        async joinTournament() {
-            if (!this.selectedMemberId || !this.selectedTournamentId) {
-                this.joinMessage = "Vælg både medlem og turnering.";
+        // --- Pair methods ---
+        async getAllPairs() {
+            try {
+                const response = await axios.get("https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/TournamentPairsDb");
+                this.pairs = response.data;
+                this.pairAddMessage = "";
+            } catch (err) {
+                this.pairAddMessage = err.message;
+                this.pairs = [];
+            }
+        },
+        async addPair() {
+            if (!this.pairMember1 || !this.pairMember2) {
+                this.pairAddMessage = "Vælg begge medlemmer til parret.";
+                return;
+            }
+            if (this.pairMember1 === this.pairMember2) {
+                this.pairAddMessage = "Et par skal bestå af to forskellige medlemmer.";
                 return;
             }
             try {
-                // Antag endpoint: POST /api/ClubTournamentsDb/{tournamentId}/join/{memberId}
-                const url = `${tournamentUrl}/${this.selectedTournamentId}/join/${this.selectedMemberId}`;
-                const response = await axios.post(url);
-                this.joinMessage = `Medlem tilmeldt! (${response.status} ${response.statusText})`;
+                const payload = {
+                    member1: this.pairMember1,
+                    member2: this.pairMember2,
+                    agreed: this.pairAgreed
+                };
+                const response = await axios.post("https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/TournamentPairsDb", payload);
+                this.pairAddMessage = `Par oprettet! (${response.status} ${response.statusText})`;
+                await this.getAllPairs();
             } catch (err) {
-                this.joinMessage = err.response?.data?.message || err.message || "Fejl ved tilmelding.";
+                this.pairAddMessage = err.response?.data?.message || err.message;
+            }
+        },
+        // --- Tournament methods ---
+        async getAllTournaments() {
+            try {
+                const response = await axios.get(tournamentUrl);
+                this.tournaments = response.data;
+                this.error = "";
+            } catch (err) {
+                this.error = err.message;
+                this.tournaments = [];
+            }
+        },
+        async addTournament() {
+            // Validate all date fields are filled
+            const cleanedDates = this.tournamentDates.map(d => (d || '').trim()).filter(d => d);
+            if (cleanedDates.length === 0) {
+                this.addMessage = "Udfyld alle dato-felter.";
+                return;
+            }
+            // Convert to ISO strings for backend
+            const isoDates = cleanedDates.map(d => {
+                if (d.length > 10) return d;
+                return new Date(d).toISOString();
+            });
+            this.tournamentDatesString = isoDates.join(',');
+            try {
+                const payload = {
+                    tournamentName: this.tournamentName,
+                    tournamentDescription: this.tournamentDescription,
+                    location: this.location,
+                    tournamentFormat: this.tournamentFormat,
+                    tournamentDates: isoDates, // REQUIRED ARRAY
+                    tournamentDatesString: this.tournamentDatesString,
+                    createdAt: new Date().toISOString(),
+                    isActive: this.isActive
+                };
+                const response = await axios.post(tournamentUrl, payload);
+                this.addMessage = `Turnering oprettet! (${response.status} ${response.statusText})`;
+            } catch (ex) {
+                this.addMessage = ex.response?.data?.message || ex.message;
+            }
+        },
+        async updateTournament() {
+            const url = tournamentUrl + "/" + this.id;
+            try {
+                let createdAt = this.createdAt;
+                if (!createdAt) {
+                    createdAt = new Date().toISOString();
+                }
+                const datesString = Array.isArray(this.tournamentDates) ? this.tournamentDates.join(",") : "";
+                const payload = {
+                    id: this.id,
+                    tournamentName: this.tournamentName,
+                    tournamentDescription: this.tournamentDescription,
+                    location: this.location,
+                    tournamentFormat: this.tournamentFormat,
+                    tournamentDatesString: datesString,
+                    createdAt: createdAt,
+                    isActive: this.isActive
+                };
+                const response = await axios.put(url, payload);
+                this.addMessage = "response " + response.status + " " + response.statusText;
+                await this.getAllTournaments();
+            } catch (ex) {
+                alert(ex.message);
+            }
+        },
+        async deleteTournament(id) {
+            if (!confirm('Er du sikker på, at du vil slette denne turnering?')) return;
+            try {
+                const response = await axios.delete(`${tournamentUrl}/${id}`);
+                this.addMessage = `Turnering slettet! (${response.status} ${response.statusText})`;
+                // Refresh list
+                await this.getAllTournaments();
+            } catch (ex) {
+                this.addMessage = ex.message;
             }
         },
         showUpdateForm(t) {
@@ -94,83 +197,22 @@ Vue.createApp({
                 if (el) el.scrollIntoView({behavior: 'smooth'});
             });
         },
-        async getAllTournaments() {
-            try {
-                const response = await axios.get(tournamentUrl);
-                this.tournaments = response.data;
-                this.error = "";
-            } catch (err) {
-                this.error = err.message;
-                this.tournaments = [];
-            }
-        },
-        async addTournament() {
-            // Validate all date fields are filled
-            const cleanedDates = this.tournamentDates.map(d => (d || '').trim()).filter(d => d);
-                if (cleanedDates.length === 0) {
-                this.addMessage = "Udfyld alle dato-felter.";
+        async joinTournament() {
+            if (!this.selectedMemberId || !this.selectedTournamentId) {
+                this.joinMessage = "Vælg både medlem og turnering.";
                 return;
             }
-                // Convert to ISO strings for backend
-                const isoDates = cleanedDates.map(d => {
-                    // If already ISO, return as is, else convert
-                    if (d.length > 10) return d;
-                    return new Date(d).toISOString();
-                });
-                this.tournamentDatesString = isoDates.join(',');
             try {
-                const payload = {
-                    tournamentName: this.tournamentName,
-                    tournamentDescription: this.tournamentDescription,
-                    location: this.location,
-                    tournamentFormat: this.tournamentFormat,
-                        tournamentDates: isoDates, // REQUIRED ARRAY
-                        tournamentDatesString: this.tournamentDatesString,
-                    createdAt: new Date().toISOString(),
-                    isActive: this.isActive
-                };
-                const response = await axios.post(tournamentUrl, payload);
-                this.addMessage = `Turnering oprettet! (${response.status} ${response.statusText})`;
-            } catch (ex) {
-                this.addMessage = ex.response?.data?.message || ex.message;
+                // Antag endpoint: POST /api/ClubTournamentsDb/{tournamentId}/join/{memberId}
+                const url = `${tournamentUrl}/${this.selectedTournamentId}/join/${this.selectedMemberId}`;
+                const response = await axios.post(url);
+                this.joinMessage = `Medlem tilmeldt! (${response.status} ${response.statusText})`;
+            } catch (err) {
+                this.joinMessage = err.response?.data?.message || err.message || "Fejl ved tilmelding.";
             }
         },
-        async deleteTournament(id) {
-            if (!confirm('Er du sikker på, at du vil slette denne turnering?')) return;
-            try {
-                const response = await axios.delete(`${tournamentUrl}/${id}`);
-                this.addMessage = `Turnering slettet! (${response.status} ${response.statusText})`;
-                // Refresh list
-                await this.getAllTournaments();
-            } catch (ex) {
-                this.addMessage = ex.message;
-            }
-        },
-        async updateTournament() {
-            const url = tournamentUrl + "/" + this.id;
-            try {
-                let createdAt = this.createdAt;
-                if (!createdAt) {
-                    createdAt = new Date().toISOString();
-                }
-                const datesString = Array.isArray(this.tournamentDates) ? this.tournamentDates.join(",") : "";
-                const payload = {
-                    id: this.id,
-                    tournamentName: this.tournamentName,
-                    tournamentDescription: this.tournamentDescription,
-                    location: this.location,
-                    tournamentFormat: this.tournamentFormat,
-                    tournamentDatesString: datesString,
-                    createdAt: createdAt,
-                    isActive: this.isActive
-                };
-                const response = await axios.put(url, payload);
-                this.addMessage = "response " + response.status + " " + response.statusText;
-                await this.getAllTournaments();
-            } catch (ex) {
-                alert(ex.message);
-            }
-        },
+
+        // --- Member methods ---
         async getAllMembers() {
             try {
                 const response = await fetch(membersUrl);
