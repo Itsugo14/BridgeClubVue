@@ -2,54 +2,61 @@
 // http (non-secure) will make the app complain about mixed content when running the app from Azure
 const membersUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/Membersdb";
 const tournamentUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/ClubTournamentsDb";
+const pairUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/TournamentPairsDb";
 
-Vue.createApp({
+const app = Vue.createApp({
     data() {
         return {
-            // --- Member properties ---
-            memberId: null,
-            firstName: "",
-            surName: "",
-            email: "",
-            phoneNumber: "",
-            address1: "",
-            address2: "",
-            postCode: "",
-            dateOfBirth: "",
-            junior: true,
-            newsletter: true,
-            password: "",
-            confirmPassword: "",
+            // ===================== MEMBER PROPERTIES =====================
+            member: {
+                id: null,
+                firstName: "",
+                surName: "",
+                email: "",
+                phoneNumber: "",
+                address1: "",
+                address2: "",
+                postCode: "",
+                dateOfBirth: "",
+                junior: true,
+                newsletter: true,
+                password: "",
+            },
+
+            // ===================== TOURNAMENT PROPERTIES =====================
+            tournament: {
+                id: null,
+                tournamentName: "",
+                tournamentDescription: "",
+                location: "",
+                tournamentFormat: "",
+                numDates: 1,
+                tournamentDates: [""],
+                tournamentDatesString: "",
+                createdAt: "",
+                isActive: true,
+            },
+
+            // ===================== PAIR PROPERTIES =====================
+            pair: {
+                pairs: [], // For pairs list page
+                pairIds: [], // For member selection (GetAllMembers.html)
+                addPairMessage: "",
+            },
+
+            // ===================== FRONTEND PROPERTIES =====================
             members: [],
-
-            // --- Tournament properties ---
-            tournamentId: null,
-            tournamentName: "",
-            tournamentDescription: "",
-            location: "",
-            tournamentFormat: "",
-            numDates: 1,
-            tournamentDates: [""],
-            tournamentDatesString: "",
-            createdAt: "",
-            isActive: true,
             tournaments: [],
-
-            // --- Pair properties ---
-            pairs: [],
-            pairMember1: null,
-            pairMember2: null,
-            pairAgreed: false,
-            pairAddMessage: "",
-
-            // --- Frontend/UI properties ---
+            confirmPassword: "",
             addMessage: "",
             error: "",
+            // Inline update form
             showUpdate: false,
+            // Join tournament form
             selectedMemberId: "",
             selectedTournamentId: "",
-            joinMessage: ""
-        }
+            joinMessage: "",
+        };
     },
     watch: {
         numDates(newVal, oldVal) {
@@ -61,40 +68,44 @@ Vue.createApp({
         }
     },
     methods: {
-        // --- Pair methods ---
-        async getAllPairs() {
+        // ===================== MEMBER METHODS =====================
+        async getAllMembers() {
             try {
-                const response = await axios.get("https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/TournamentPairsDb");
-                this.pairs = response.data;
-                this.pairAddMessage = "";
+                const response = await fetch(membersUrl);
+                if (!response.ok) throw new Error("API fejl: " + response.status);
+                this.members = await response.json();
+                this.error = "";
             } catch (err) {
-                this.pairAddMessage = err.message;
-                this.pairs = [];
+                this.error = err.message;
+                this.members = [];
             }
         },
-        async addPair() {
-            if (!this.pairMember1 || !this.pairMember2) {
-                this.pairAddMessage = "Vælg begge medlemmer til parret.";
-                return;
-            }
-            if (this.pairMember1 === this.pairMember2) {
-                this.pairAddMessage = "Et par skal bestå af to forskellige medlemmer.";
+        async addMember() {
+            if (this.member.password !== this.confirmPassword) {
+                this.addMessage = "Adgangskoderne matcher ikke.";
                 return;
             }
             try {
-                const payload = {
-                    member1: this.pairMember1,
-                    member2: this.pairMember2,
-                    agreed: this.pairAgreed
-                };
-                const response = await axios.post("https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/TournamentPairsDb", payload);
-                this.pairAddMessage = `Par oprettet! (${response.status} ${response.statusText})`;
-                await this.getAllPairs();
-            } catch (err) {
-                this.pairAddMessage = err.response?.data?.message || err.message;
+                const response = await axios.post(
+                    membersUrl,
+                    {
+                        firstName: this.member.firstName,
+                        surName: this.member.surName,
+                        email: this.member.email,
+                        phoneNumber: this.member.phoneNumber,
+                        address1: this.member.address1,
+                        postCode: this.member.postCode,
+                        password: this.member.password,
+                        dateOfBirth: this.member.dateOfBirth
+                    }
+                );
+                this.addMessage = `Bruger oprettet! (${response.status} ${response.statusText})`;
+            } catch (ex) {
+                this.addMessage = ex.message;
             }
         },
-        // --- Tournament methods ---
+
+        // ===================== TOURNAMENT METHODS =====================
         async getAllTournaments() {
             try {
                 const response = await axios.get(tournamentUrl);
@@ -107,57 +118,26 @@ Vue.createApp({
         },
         async addTournament() {
             // Validate all date fields are filled
-            const cleanedDates = this.tournamentDates.map(d => (d || '').trim()).filter(d => d);
-            if (cleanedDates.length === 0) {
+            const cleanedDates = this.tournament.tournamentDates.map(d => (d || '').trim()).filter(d => d);
+            if (cleanedDates.length !== this.tournament.numDates) {
                 this.addMessage = "Udfyld alle dato-felter.";
                 return;
             }
-            // Convert to ISO strings for backend
-            const isoDates = cleanedDates.map(d => {
-                if (d.length > 10) return d;
-                return new Date(d).toISOString();
-            });
-            this.tournamentDatesString = isoDates.join(',');
             try {
+                this.tournament.tournamentDatesString = cleanedDates.join(',');
                 const payload = {
-                    tournamentName: this.tournamentName,
-                    tournamentDescription: this.tournamentDescription,
-                    location: this.location,
-                    tournamentFormat: this.tournamentFormat,
-                    tournamentDates: isoDates, // REQUIRED ARRAY
-                    tournamentDatesString: this.tournamentDatesString,
+                    tournamentName: this.tournament.tournamentName,
+                    tournamentDescription: this.tournament.tournamentDescription,
+                    location: this.tournament.location,
+                    tournamentFormat: this.tournament.tournamentFormat,
+                    tournamentDatesString: this.tournament.tournamentDatesString,
                     createdAt: new Date().toISOString(),
-                    isActive: this.isActive
+                    isActive: this.tournament.isActive
                 };
                 const response = await axios.post(tournamentUrl, payload);
                 this.addMessage = `Turnering oprettet! (${response.status} ${response.statusText})`;
             } catch (ex) {
                 this.addMessage = ex.response?.data?.message || ex.message;
-            }
-        },
-        async updateTournament() {
-            const url = tournamentUrl + "/" + this.id;
-            try {
-                let createdAt = this.createdAt;
-                if (!createdAt) {
-                    createdAt = new Date().toISOString();
-                }
-                const datesString = Array.isArray(this.tournamentDates) ? this.tournamentDates.join(",") : "";
-                const payload = {
-                    id: this.id,
-                    tournamentName: this.tournamentName,
-                    tournamentDescription: this.tournamentDescription,
-                    location: this.location,
-                    tournamentFormat: this.tournamentFormat,
-                    tournamentDatesString: datesString,
-                    createdAt: createdAt,
-                    isActive: this.isActive
-                };
-                const response = await axios.put(url, payload);
-                this.addMessage = "response " + response.status + " " + response.statusText;
-                await this.getAllTournaments();
-            } catch (ex) {
-                alert(ex.message);
             }
         },
         async deleteTournament(id) {
@@ -171,26 +151,51 @@ Vue.createApp({
                 this.addMessage = ex.message;
             }
         },
+        async updateTournament() {
+            const url = tournamentUrl + "/" + this.tournament.id;
+            try {
+                let createdAt = this.tournament.createdAt;
+                if (!createdAt) {
+                    createdAt = new Date().toISOString();
+                }
+                const datesString = Array.isArray(this.tournament.tournamentDates) ? this.tournament.tournamentDates.join(",") : "";
+                const payload = {
+                    id: this.tournament.id,
+                    tournamentName: this.tournament.tournamentName,
+                    tournamentDescription: this.tournament.tournamentDescription,
+                    location: this.tournament.location,
+                    tournamentFormat: this.tournament.tournamentFormat,
+                    tournamentDatesString: datesString,
+                    createdAt: createdAt,
+                    isActive: this.tournament.isActive
+                };
+                const response = await axios.put(url, payload);
+                this.addMessage = "response " + response.status + " " + response.statusText;
+                await this.getAllTournaments();
+            } catch (ex) {
+                alert(ex.message);
+            }
+        },
         showUpdateForm(t) {
             this.showUpdate = true;
-            this.id = t.id;
-            this.tournamentName = t.tournamentName;
-            this.tournamentDescription = t.tournamentDescription;
-            this.location = t.location;
-            this.tournamentFormat = t.tournamentFormat;
+            this.tournament.id = t.id;
+            this.tournament.tournamentName = t.tournamentName;
+            this.tournament.tournamentDescription = t.tournamentDescription;
+            this.tournament.location = t.location;
+            this.tournament.tournamentFormat = t.tournamentFormat;
             // Support both array and string for TournamentDates
             if (Array.isArray(t.tournamentDates)) {
-                this.tournamentDates = t.tournamentDates.map(d => d.split('T')[0]);
-                this.tournamentDatesString = this.tournamentDates.join(",");
+                this.tournament.tournamentDates = t.tournamentDates.map(d => d.split('T')[0]);
+                this.tournament.tournamentDatesString = this.tournament.tournamentDates.join(",");
             } else if (typeof t.tournamentDatesString === 'string') {
-                this.tournamentDates = t.tournamentDatesString.split(',').map(s => s.trim());
-                this.tournamentDatesString = t.tournamentDatesString;
+                this.tournament.tournamentDates = t.tournamentDatesString.split(',').map(s => s.trim());
+                this.tournament.tournamentDatesString = t.tournamentDatesString;
             } else {
-                this.tournamentDates = [];
-                this.tournamentDatesString = "";
+                this.tournament.tournamentDates = [];
+                this.tournament.tournamentDatesString = "";
             }
-            this.isActive = t.isActive;
-            this.createdAt = t.createdAt || "";
+            this.tournament.isActive = t.isActive;
+            this.tournament.createdAt = t.createdAt || "";
             this.addMessage = "";
             this.$nextTick(() => {
                 const el = document.querySelector('[ref=updateForm]');
@@ -212,46 +217,119 @@ Vue.createApp({
             }
         },
 
-        // --- Member methods ---
-        async getAllMembers() {
+        // ===================== PAIR METHODS =====================
+        async getAllPairs() {
             try {
-                const response = await fetch(membersUrl);
-                if (!response.ok) throw new Error("API fejl: " + response.status);
-                this.members = await response.json();
+                const response = await axios.get(pairUrl);
+                return response.data; // [{id, member1, member2, agreed}]
+            } catch (err) {
+                this.error = err.message;
+                return [];
+            }
+        },
+        async getPairById(id) {
+            try {
+                const response = await axios.get(`${pairUrl}/${id}`);
+                return response.data; // {id, member1, member2, agreed}
+            } catch (err) {
+                this.error = err.message;
+                return null;
+            }
+        },
+        async addPair(member1, member2, agreed = true) {
+            try {
+                const payload = { member1, member2, agreed };
+                const response = await axios.post(pairUrl, payload);
+                this.addMessage = `Par oprettet! (${response.status} ${response.statusText})`;
+                return response.data;
+            } catch (err) {
+                this.addMessage = err.response?.data?.message || err.message;
+                return null;
+            }
+        },
+        async updatePair(id, member1, member2, agreed) {
+            try {
+                const payload = { id, member1, member2, agreed };
+                const response = await axios.put(`${pairUrl}/${id}`, payload);
+                this.addMessage = `Par opdateret! (${response.status} ${response.statusText})`;
+                return response.data;
+            } catch (err) {
+                this.addMessage = err.response?.data?.message || err.message;
+                return null;
+            }
+        },
+        async deletePair(id) {
+            if (!confirm('Er du sikker på, at du vil slette dette par?')) return;
+            try {
+                const response = await axios.delete(`${pairUrl}/${id}`);
+                this.addMessage = `Par slettet! (${response.status} ${response.statusText})`;
+                return true;
+            } catch (err) {
+                this.addMessage = err.response?.data?.message || err.message;
+                return false;
+            }
+        },
+        // --- Member List Pair Selection Logic ---
+        selectMember(id) {
+            if (this.pair.pairIds.length < 2 && !this.pair.pairIds.includes(id)) {
+                this.pair.pairIds.push(id);
+            }
+        },
+        async createPair() {
+            if (this.pair.pairIds.length !== 2) return;
+            this.pair.addPairMessage = "Opretter par...";
+            const [member1, member2] = this.pair.pairIds;
+            const result = await this.addPair(member1, member2, true);
+            if (result) {
+                this.pair.addPairMessage = `Par oprettet!<br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                this.pair.pairIds = [];
+            } else {
+                this.pair.addPairMessage = this.addMessage || "Fejl ved oprettelse af par.";
+            }
+        },
+        resetPairSelection() {
+            this.pair.pairIds = [];
+            this.pair.addPairMessage = "";
+        },
+        // --- Pairs List Page Logic ---
+        async fetchPairs() {
+            try {
+                const pairs = await this.getAllPairs();
+                this.pair.pairs = pairs;
                 this.error = "";
             } catch (err) {
                 this.error = err.message;
-                this.members = [];
+                this.pair.pairs = [];
             }
         },
-        async addMember() {
-            if (this.password !== this.confirmPassword) {
-                this.addMessage = "Adgangskoderne matcher ikke.";
-                return;
-            }
-            try {
-                const response = await axios.post(
-                    membersUrl,
-                    {
-                        firstName: this.firstName,
-                        surName: this.surName,
-                        email: this.email,
-                        phoneNumber: this.phoneNumber,
-                        address1: this.address1,
-                        postCode: this.postCode,
-                        password: this.password,
-                        dateOfBirth: this.dateOfBirth
-                    }
-                );
-                this.addMessage = `Bruger oprettet! (${response.status} ${response.statusText})`;
-            } catch (ex) {
-                this.addMessage = ex.message;
-            }
-        }
+        getMemberName(id) {
+            const m = this.members.find(mem => mem.id === id);
+            if (!m) return id;
+            return m.firstName + ' ' + m.surName;
+        },
+
+        // ===================== FRONTEND/UTILITY METHODS =====================
+        // (Add any additional frontend or utility methods here)
     },
     mounted() {
         // Hent medlemmer og turneringer hvis de ikke allerede er hentet
         if (this.members.length === 0) this.getAllMembers();
         if (this.tournaments.length === 0) this.getAllTournaments();
+
+        // If on pairs list page, fetch pairs after members loaded
+        if (window.location.pathname.endsWith('/Pairs/GetAllPairs.html')) {
+            // Wait for members to load, then fetch pairs
+            const waitForMembers = () => {
+                if (this.members.length > 0) {
+                    this.fetchPairs();
+                } else {
+                    setTimeout(waitForMembers, 200);
+                }
+            };
+            waitForMembers();
+        }
     }
-}).mount("#app");
+});
+
+// Mount the Vue app and expose it globally for inline access
+window.app = app.mount('#app');
