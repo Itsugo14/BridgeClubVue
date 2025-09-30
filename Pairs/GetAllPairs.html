@@ -41,18 +41,20 @@
                     <button class="btn btn-primary" @click="fetchPairs">Hent alle par</button>
                 </div>
                 <div class="table-responsive">
-                    <table v-if="pair.pairs.length" class="table table-bordered table-striped">
+                    <!-- Unagreed pairs -->
+                    <h5 class="mb-2 mt-4">Par der mangler enighed</h5>
+                    <table v-if="pair.pairs.filter(p => !p.agreed).length" class="table table-bordered table-striped mb-4">
                         <thead class="thead-light">
                             <tr>
                                 <th>ID</th>
                                 <th>Medlem 1</th>
                                 <th>Medlem 2</th>
-                                <th>Enig?</th>
-                                <th>Handling</th>
+                                <th>Check hvis begge medlemmer er enige</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="p in pair.pairs" :key="p.id">
+                            <tr v-for="p in pair.pairs.filter(p => !p.agreed)" :key="p.id">
                                 <td>{{ p.id }}</td>
                                 <td>{{ getMemberName(p.member1) }}</td>
                                 <td>{{ getMemberName(p.member2) }}</td>
@@ -65,6 +67,31 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div v-else class="text-center text-muted mb-4">Alle par er enige</div>
+
+                    <!-- Agreed pairs -->
+                    <h5 class="mb-2 mt-4">Par der er enige</h5>
+                    <table v-if="pair.pairs.filter(p => p.agreed).length" class="table table-bordered table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Medlem 1</th>
+                                <th>Medlem 2</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="p in pair.pairs.filter(p => p.agreed)" :key="p.id">
+                                <td>{{ p.id }}</td>
+                                <td>{{ getMemberName(p.member1) }}</td>
+                                <td>{{ getMemberName(p.member2) }}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" @click="deletePair(p.id)">Slet</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div v-else class="text-center text-muted">Ingen par er enige endnu</div>
                 </div>
                 <p v-if="error" class="text-danger text-center mt-3">{{ error }}</p>
                 <p v-if="pair.addPairMessage" class="text-success text-center mt-3" v-html="pair.addPairMessage"></p>

@@ -309,7 +309,7 @@ const app = Vue.createApp({
             const [member1, member2] = this.pair.pairIds;
             const result = await this.addPair(member1, member2, true);
             if (result) {
-                this.pair.addPairMessage = `Par oprettet!<br><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                this.pair.addPairMessage = "Par oprettet!";
                 this.pair.pairIds = [];
             } else {
                 this.pair.addPairMessage = this.addMessage || "Fejl ved oprettelse af par.";
