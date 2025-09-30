@@ -41,7 +41,7 @@
                     <button class="btn btn-primary" @click="fetchPairs">Hent alle par</button>
                 </div>
                 <div class="table-responsive">
-                    <table v-if="pairs.length" class="table table-bordered table-striped">
+                    <table v-if="pair.pairs.length" class="table table-bordered table-striped">
                         <thead class="thead-light">
                             <tr>
                                 <th>ID</th>
@@ -52,20 +52,20 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="pair in pairs" :key="pair.id">
-                                <td>{{ pair.id }}</td>
-                                <td>{{ getMemberName(pair.member1) }}</td>
-                                <td>{{ getMemberName(pair.member2) }}</td>
-                                <td>{{ pair.agreed ? 'Ja' : 'Nej' }}</td>
+                            <tr v-for="p in pair.pairs" :key="p.id">
+                                <td>{{ p.id }}</td>
+                                <td>{{ getMemberName(p.member1) }}</td>
+                                <td>{{ getMemberName(p.member2) }}</td>
+                                <td>{{ p.agreed ? 'Ja' : 'Nej' }}</td>
                                 <td>
-                                    <button class="btn btn-danger btn-sm" @click="deletePair(pair.id)">Slet</button>
+                                    <button class="btn btn-danger btn-sm" @click="deletePair(p.id)">Slet</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <p v-if="error" class="text-danger text-center mt-3">{{ error }}</p>
-                <p v-if="addMessage" class="text-success text-center mt-3">{{ addMessage }}</p>
+                <p v-if="pair.addPairMessage" class="text-success text-center mt-3" v-html="pair.addPairMessage"></p>
             </div>
         </div>
     </div>

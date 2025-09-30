@@ -70,30 +70,30 @@
                                 <td>{{ member.junior ? 'Ja' : 'Nej' }}</td>
                                 <td>{{ member.newsletter ? 'Ja' : 'Nej' }}</td>
                                 <td>
-                                    <button v-if="pairIds.length === 0" class="btn btn-outline-primary btn-sm"
+                                    <button v-if="pair.pairIds.length === 0" class="btn btn-outline-primary btn-sm"
                                             @click="selectMember(member.id)">
                                         Vælg som 1. par
                                     </button>
-                                    <button v-else-if="pairIds.length === 1 && !pairIds.includes(member.id)" class="btn btn-outline-success btn-sm"
+                                    <button v-else-if="pair.pairIds.length === 1 && !pair.pairIds.includes(member.id)" class="btn btn-outline-success btn-sm"
                                             @click="selectMember(member.id)">
                                         Vælg som 2. par
                                     </button>
-                                    <span v-else-if="pairIds.includes(member.id)" class="text-muted">Valgt</span>
+                                    <span v-else-if="pair.pairIds.includes(member.id)" class="text-muted">Valgt</span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <p v-if="error" class="text-danger text-center mt-3">{{ error }}</p>
-                <div v-if="pairIds.length" class="text-success text-center mt-3">
-                    <span v-if="pairIds.length === 1">Valgt medlem ID: {{ pairIds[0] }}</span>
-                    <span v-else>Valgte par: {{ pairIds[0] }} &amp; {{ pairIds[1] }}</span>
-                    <div v-if="pairIds.length === 2" class="mt-2">
+                <div v-if="pair.pairIds.length" class="text-success text-center mt-3">
+                    <span v-if="pair.pairIds.length === 1">Valgt medlem ID: {{ pair.pairIds[0] }}</span>
+                    <span v-else>Valgte par: {{ pair.pairIds[0] }} &amp; {{ pair.pairIds[1] }}</span>
+                    <div v-if="pair.pairIds.length === 2" class="mt-2">
                         <button class="btn btn-primary" @click="createPair">Opret par</button>
                         <button class="btn btn-secondary ml-2" @click="resetPairSelection">Nulstil</button>
                     </div>
                 </div>
-                <div v-if="addPairMessage" class="text-info text-center mt-2" v-html="addPairMessage"></div>
+                <div v-if="pair.addPairMessage" class="text-info text-center mt-2" v-html="pair.addPairMessage"></div>
             </div>
         </div>
     </div>
