@@ -366,6 +366,7 @@ const app = Vue.createApp({
             const id = params.get('id');
             if (id) {
                 this.getTournamentById(id).then(data => {
+                    console.log('Tournament API response:', data);
                     if (data) {
                         // Defensive: ensure all fields are present
                         this.tournament = Object.assign({
@@ -384,6 +385,9 @@ const app = Vue.createApp({
                         if (typeof this.tournament.tournamentDates === 'string') {
                             this.tournament.tournamentDates = this.tournament.tournamentDates.split(',').map(s => s.trim());
                         }
+                        console.log('Tournament after assign:', this.tournament);
+                    } else {
+                        console.log('No tournament data found for id', id);
                     }
                 });
             }
