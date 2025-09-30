@@ -52,10 +52,6 @@ const app = Vue.createApp({
             error: "",
             // Inline update form
             showUpdate: false,
-            // Join tournament form
-            selectedMemberId: "",
-            selectedTournamentId: "",
-            joinMessage: "",
         };
     },
     watch: {
@@ -236,20 +232,7 @@ const app = Vue.createApp({
                 if (el) el.scrollIntoView({behavior: 'smooth'});
             });
         },
-        async joinTournament() {
-            if (!this.selectedMemberId || !this.selectedTournamentId) {
-                this.joinMessage = "Vælg både medlem og turnering.";
-                return;
-            }
-            try {
-                // Antag endpoint: POST /api/ClubTournamentsDb/{tournamentId}/join/{memberId}
-                const url = `${tournamentUrl}/${this.selectedTournamentId}/join/${this.selectedMemberId}`;
-                const response = await axios.post(url);
-                this.joinMessage = `Medlem tilmeldt! (${response.status} ${response.statusText})`;
-            } catch (err) {
-                this.joinMessage = err.response?.data?.message || err.message || "Fejl ved tilmelding.";
-            }
-        },
+
 
         // ===================== PAIR METHODS =====================
         async getAllPairs() {
@@ -409,4 +392,4 @@ const app = Vue.createApp({
 });
 
 // Mount the Vue app and expose it globally for inline access
-window.app = app.mount('#app');
+app.mount('#app');
