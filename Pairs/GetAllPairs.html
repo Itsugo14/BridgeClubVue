@@ -47,7 +47,7 @@
                                 <th>ID</th>
                                 <th>Medlem 1</th>
                                 <th>Medlem 2</th>
-                                <th>Enige</th>
+                                <th>Enig?</th>
                                 <th>Handling</th>
                             </tr>
                         </thead>
@@ -56,7 +56,9 @@
                                 <td>{{ p.id }}</td>
                                 <td>{{ getMemberName(p.member1) }}</td>
                                 <td>{{ getMemberName(p.member2) }}</td>
-                                <td>{{ p.agreed ? 'Ja' : 'Nej' }}</td>
+                                <td>
+                                    <input type="checkbox" :checked="p.agreed" @change="updatePair(p.id, p.member1, p.member2, $event.target.checked)">
+                                </td>
                                 <td>
                                     <button class="btn btn-danger btn-sm" @click="deletePair(p.id)">Slet</button>
                                 </td>

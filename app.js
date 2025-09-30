@@ -60,10 +60,19 @@ const app = Vue.createApp({
     },
     watch: {
         numDates(newVal, oldVal) {
+            // For create form (legacy, but keep for safety)
             if (newVal > oldVal) {
                 for (let i = oldVal; i < newVal; i++) this.tournamentDates.push("");
             } else if (newVal < oldVal) {
                 this.tournamentDates.splice(newVal);
+            }
+        },
+        'tournament.numDates': function(newVal, oldVal) {
+            // For update form
+            if (newVal > oldVal) {
+                for (let i = oldVal; i < newVal; i++) this.tournament.tournamentDates.push("");
+            } else if (newVal < oldVal) {
+                this.tournament.tournamentDates.splice(newVal);
             }
         }
     },
@@ -123,6 +132,12 @@ const app = Vue.createApp({
                 this.addMessage = "Udfyld alle dato-felter.";
                 return;
             }
+            // Convert to ISO strings for backend
+            const isoDates = cleanedDates.map(d => {
+                // If already ISO, return as is; else convert
+                if (d.length > 10) return d;
+                return new Date(d).toISOString();
+            });
             try {
                 this.tournament.tournamentDatesString = cleanedDates.join(',');
                 const payload = {
@@ -130,6 +145,7 @@ const app = Vue.createApp({
                     tournamentDescription: this.tournament.tournamentDescription,
                     location: this.tournament.location,
                     tournamentFormat: this.tournament.tournamentFormat,
+                    tournamentDates: isoDates,
                     tournamentDatesString: this.tournament.tournamentDatesString,
                     createdAt: new Date().toISOString(),
                     isActive: this.tournament.isActive
@@ -158,13 +174,21 @@ const app = Vue.createApp({
                 if (!createdAt) {
                     createdAt = new Date().toISOString();
                 }
-                const datesString = Array.isArray(this.tournament.tournamentDates) ? this.tournament.tournamentDates.join(",") : "";
+                const cleanedDates = Array.isArray(this.tournament.tournamentDates)
+                    ? this.tournament.tournamentDates.map(d => (d || '').trim()).filter(d => d)
+                    : [];
+                const isoDates = cleanedDates.map(d => {
+                    if (d.length > 10) return d;
+                    return new Date(d).toISOString();
+                });
+                const datesString = cleanedDates.join(",");
                 const payload = {
                     id: this.tournament.id,
                     tournamentName: this.tournament.tournamentName,
                     tournamentDescription: this.tournament.tournamentDescription,
                     location: this.tournament.location,
                     tournamentFormat: this.tournament.tournamentFormat,
+                    tournamentDates: isoDates,
                     tournamentDatesString: datesString,
                     createdAt: createdAt,
                     isActive: this.tournament.isActive
@@ -249,9 +273,13 @@ const app = Vue.createApp({
         },
         async updatePair(id, member1, member2, agreed) {
             try {
-                const payload = { id, member1, member2, agreed };
-                const response = await axios.put(`${pairUrl}/${id}`, payload);
-                this.addMessage = `Par opdateret! (${response.status} ${response.statusText})`;
+                // Call the agree endpoint, which sets agreed to true for the given pair id
+                const response = await axios.put(`${pairUrl}/${id}/agree`);
+                this.addMessage = `Par sat til enige! (${response.status} ${response.statusText})`;
+                // Optionally refresh the pairs list if on the pairs page
+                if (window.location.pathname.endsWith('/Pairs/GetAllPairs.html')) {
+                    await this.fetchPairs();
+                }
                 return response.data;
             } catch (err) {
                 this.addMessage = err.response?.data?.message || err.message;

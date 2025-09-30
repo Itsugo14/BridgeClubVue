@@ -89,23 +89,23 @@
                     <form @submit.prevent="updateTournament">
                         <div class="form-group mb-3">
                             <label for="updateId">ID</label>
-                            <input type="number" id="updateId" v-model="id" class="form-control" readonly>
+                            <input type="number" id="updateId" v-model="tournament.id" class="form-control" readonly>
                         </div>
                         <div class="form-group mb-3">
                             <label for="updateName">Navn</label>
-                            <input type="text" id="updateName" v-model="tournamentName" class="form-control" required>
+                            <input type="text" id="updateName" v-model="tournament.tournamentName" class="form-control" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="updateDesc">Beskrivelse</label>
-                            <textarea id="updateDesc" v-model="tournamentDescription" class="form-control"></textarea>
+                            <textarea id="updateDesc" v-model="tournament.tournamentDescription" class="form-control"></textarea>
                         </div>
                         <div class="form-group mb-3">
                             <label for="updateLoc">Lokation</label>
-                            <input type="text" id="updateLoc" v-model="location" class="form-control" required>
+                            <input type="text" id="updateLoc" v-model="tournament.location" class="form-control" required>
                         </div>
                         <div class="form-group mb-3">
                             <label for="updateFormat">Format</label>
-                            <select id="updateFormat" v-model="tournamentFormat" class="form-control" required>
+                            <select id="updateFormat" v-model="tournament.tournamentFormat" class="form-control" required>
                                 <option value="">Vælg format</option>
                                 <option value="Pairs">Par</option>
                                 <option value="Teams">Hold</option>
@@ -113,12 +113,12 @@
                         </div>
                         <div class="form-group mb-3">
                             <label for="updateNumDates">Antal datoer</label>
-                            <input type="number" id="updateNumDates" v-model.number="numDates" min="1" max="20" class="form-control" required>
+                            <input type="number" id="updateNumDates" v-model.number="tournament.numDates" min="1" max="20" class="form-control" required>
                         </div>
                         <!-- Dynamic date fields for update -->
-                        <div v-for="(date, index) in tournamentDates" :key="'update' + index" class="form-group mb-2">
+                        <div v-for="(date, index) in tournament.tournamentDates" :key="'update' + index" class="form-group mb-2">
                             <label :for="'updateTournamentDate' + index">Dato {{ index + 1 }}</label>
-                            <input type="date" :id="'updateTournamentDate' + index" v-model="tournamentDates[index]" class="form-control" required>
+                            <input type="date" :id="'updateTournamentDate' + index" v-model="tournament.tournamentDates[index]" class="form-control" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Opdater</button>
                         <button type="button" class="btn btn-secondary w-100 mt-2" @click="showUpdate = false">Annuller</button>
