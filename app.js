@@ -89,6 +89,16 @@ const app = Vue.createApp({
                 this.members = [];
             }
         },
+        // ===================== TOURNAMENT GET BY ID =====================
+        async getTournamentById(id) {
+            try {
+                const response = await axios.get(`${tournamentUrl}/${id}`);
+                return response.data;
+            } catch (err) {
+                this.error = err.message;
+                return null;
+            }
+        },
         async addMember() {
             if (this.member.password !== this.confirmPassword) {
                 this.addMessage = "Adgangskoderne matcher ikke.";
@@ -337,7 +347,17 @@ const app = Vue.createApp({
         },
 
         // ===================== FRONTEND/UTILITY METHODS =====================
-        // (Add any additional frontend or utility methods here)
+        formatDate(date) {
+            if (!date) return '';
+            // Try to parse ISO or yyyy-MM-dd
+            let d = new Date(date);
+            if (isNaN(d.getTime())) return date;
+            // Format as dd-MM-yyyy
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}-${month}-${year}`;
+        },
     },
     mounted() {
         // Hent medlemmer og turneringer hvis de ikke allerede er hentet
@@ -355,6 +375,35 @@ const app = Vue.createApp({
                 }
             };
             waitForMembers();
+        }
+
+        // If on tournament detail page, fetch tournament by id from query string
+        if (window.location.pathname.endsWith('/Tournament/GetTournamentById.html')) {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (id) {
+                this.getTournamentById(id).then(data => {
+                    if (data) {
+                        // Defensive: ensure all fields are present
+                        this.tournament = Object.assign({
+                            id: null,
+                            tournamentName: '',
+                            tournamentDescription: '',
+                            location: '',
+                            tournamentFormat: '',
+                            numDates: 1,
+                            tournamentDates: [],
+                            tournamentDatesString: '',
+                            createdAt: '',
+                            isActive: true
+                        }, data);
+                        // If tournamentDates is a string, split it
+                        if (typeof this.tournament.tournamentDates === 'string') {
+                            this.tournament.tournamentDates = this.tournament.tournamentDates.split(',').map(s => s.trim());
+                        }
+                    }
+                });
+            }
         }
     }
 });
