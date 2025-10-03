@@ -3,6 +3,8 @@
 const membersUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/Membersdb";
 const tournamentUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/ClubTournamentsDb";
 const pairUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/TournamentPairsDb";
+const manageRowPairsUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/ManageRowPairs";
+const manageTournamentRowsUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeurope-01.azurewebsites.net/api/ManageTournamentRows";
 
 const app = Vue.createApp({
     data() {
@@ -44,6 +46,22 @@ const app = Vue.createApp({
                 addPairMessage: "",
             },
 
+            // ===================== PAIRS PAGE STATE =====================
+            agreedPairs: [],
+            notAgreedPairs: [],
+
+            // ===================== ROWS (for dropdowns, placeholder for now) =====================
+            rows: [
+                { id: 1, name: "Række A" },
+                { id: 2, name: "Række B" },
+                { id: 3, name: "Række C" }
+            ],
+
+            // ===================== FORM STATE FOR ROW ASSIGNMENT =====================
+            selectedPairId: null,
+            selectedRowId: null,
+            selectedRowIdForTournament: null,
+
             // ===================== FRONTEND PROPERTIES =====================
             members: [],
             tournaments: [],
@@ -73,6 +91,16 @@ const app = Vue.createApp({
         }
     },
     methods: {
+        // ===================== MEMBER GET BY ID =====================
+        async getMemberById(id) {
+            try {
+                const response = await axios.get(`${membersUrl}/${id}`);
+                return response.data;
+            } catch (err) {
+                this.error = err.message;
+                return null;
+            }
+        },
         // ===================== MEMBER METHODS =====================
         async getAllMembers() {
             try {
@@ -235,9 +263,20 @@ const app = Vue.createApp({
 
 
         // ===================== PAIR METHODS =====================
-        async getAllPairs() {
+        // Get pairs that are NOT agreed (false)
+        async getNotAgreedPairs() {
             try {
-                const response = await axios.get(pairUrl);
+                const response = await axios.get(`${pairUrl}/false`);
+                return response.data; // [{id, member1, member2, agreed}]
+            } catch (err) {
+                this.error = err.message;
+                return [];
+            }
+        },
+        // Get pairs that ARE agreed (true)
+        async getAgreedPairs() {
+            try {
+                const response = await axios.get(`${pairUrl}/true`);
                 return response.data; // [{id, member1, member2, agreed}]
             } catch (err) {
                 this.error = err.message;
@@ -290,6 +329,56 @@ const app = Vue.createApp({
                 return false;
             }
         },
+        // ===================== ROW PAIR MANAGEMENT METHODS =====================
+        async assignPairToRow(pairId, rowId) {
+            // POST /api/ManageRowPairs/{pairId}/rows/{rowId}
+            const url = `${manageRowPairsUrl}/${pairId}/rows/${rowId}`;
+            try {
+                const response = await axios.post(url);
+                this.addMessage = `Par tildelt række! (${response.status} ${response.statusText})`;
+                return response.data;
+            } catch (err) {
+                this.addMessage = err.response?.data?.message || err.message;
+                return null;
+            }
+        },
+        async removePairFromRow(pairId, rowId) {
+            // DELETE /api/ManageRowPairs/{pairId}/rows/{rowId}
+            const url = `${manageRowPairsUrl}/${pairId}/rows/${rowId}`;
+            try {
+                const response = await axios.delete(url);
+                this.addMessage = `Par fjernet fra række! (${response.status} ${response.statusText})`;
+                return true;
+            } catch (err) {
+                this.addMessage = err.response?.data?.message || err.message;
+                return false;
+            }
+        },
+        // ===================== TOURNAMENT ROW MANAGEMENT METHODS =====================
+        async assignRowToTournament(tournamentId, rowId) {
+            // POST /api/ManageTournamentRows/{tournamentId}/rows/{rowId}
+            const url = `${manageTournamentRowsUrl}/${tournamentId}/rows/${rowId}`;
+            try {
+                const response = await axios.post(url);
+                this.addMessage = `Række tildelt turnering! (${response.status} ${response.statusText})`;
+                return response.data;
+            } catch (err) {
+                this.addMessage = err.response?.data?.message || err.message;
+                return null;
+            }
+        },
+        async removeRowFromTournament(tournamentId, rowId) {
+            // DELETE /api/ManageTournamentRows/{tournamentId}/rows/{rowId}
+            const url = `${manageTournamentRowsUrl}/${tournamentId}/rows/${rowId}`;
+            try {
+                const response = await axios.delete(url);
+                this.addMessage = `Række fjernet fra turnering! (${response.status} ${response.statusText})`;
+                return true;
+            } catch (err) {
+                this.addMessage = err.response?.data?.message || err.message;
+                return false;
+            }
+        },
         // --- Member List Pair Selection Logic ---
         selectMember(id) {
             if (this.pair.pairIds.length < 2 && !this.pair.pairIds.includes(id)) {
@@ -313,20 +402,63 @@ const app = Vue.createApp({
             this.pair.addPairMessage = "";
         },
         // --- Pairs List Page Logic ---
+        // --- Pairs List Page Logic ---
         async fetchPairs() {
             try {
-                const pairs = await this.getAllPairs();
-                this.pair.pairs = pairs;
+                this.agreedPairs = await this.getAgreedPairs();
+                this.notAgreedPairs = await this.getNotAgreedPairs();
                 this.error = "";
             } catch (err) {
                 this.error = err.message;
-                this.pair.pairs = [];
+                this.agreedPairs = [];
+                this.notAgreedPairs = [];
             }
         },
-        getMemberName(id) {
-            const m = this.members.find(mem => mem.id === id);
-            if (!m) return id;
-            return m.firstName + ' ' + m.surName;
+        async updatePair(id, member1, member2, agreed) {
+            try {
+                await this.updatePairApi(id, member1, member2, agreed);
+                await this.fetchPairs();
+            } catch (err) {
+                this.error = err.message;
+            }
+        },
+        async updatePairApi(id, member1, member2, agreed) {
+            // This is the original updatePair logic
+            try {
+                // Call the agree endpoint, which sets agreed to true for the given pair id
+                const response = await axios.put(`${pairUrl}/${id}/agree`);
+                this.addMessage = `Par sat til enige! (${response.status} ${response.statusText})`;
+                return response.data;
+            } catch (err) {
+                this.addMessage = err.response?.data?.message || err.message;
+                return null;
+            }
+        },
+        async deletePair(id) {
+            if (!confirm('Er du sikker på, at du vil slette dette par?')) return;
+            try {
+                const response = await axios.delete(`${pairUrl}/${id}`);
+                this.addMessage = `Par slettet! (${response.status} ${response.statusText})`;
+                await this.fetchPairs();
+                return true;
+            } catch (err) {
+                this.addMessage = err.response?.data?.message || err.message;
+                return false;
+            }
+        },
+        getMemberName(member) {
+            if (!member) return "";
+            // If member is an object, return its name
+            if (typeof member === "object" && member.firstName) {
+                return `${member.firstName || ""} ${member.surName || ""}`.trim();
+            }
+            // If member is an ID, look up in members array
+            const m = this.members.find(mem => mem.id === member);
+            if (m) {
+                return `${m.firstName || ""} ${m.surName || ""}`.trim();
+            }
+            // Fallback: show 'Ukendt' instead of number
+            return "Ukendt";
         },
 
         // ===================== FRONTEND/UTILITY METHODS =====================
@@ -343,13 +475,37 @@ const app = Vue.createApp({
         },
     },
     mounted() {
+        // If on member detail page, fetch member by id from query string
+        if (window.location.pathname.endsWith('/Member/GetMemberById.html')) {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (id) {
+                this.getMemberById(id).then(data => {
+                    if (data) {
+                        this.member = Object.assign({
+                            id: null,
+                            firstName: '',
+                            surName: '',
+                            email: '',
+                            phoneNumber: '',
+                            address1: '',
+                            address2: '',
+                            postCode: '',
+                            dateOfBirth: '',
+                            junior: true,
+                            newsletter: true,
+                            password: ''
+                        }, data);
+                    }
+                });
+            }
+        }
         // Hent medlemmer og turneringer hvis de ikke allerede er hentet
         if (this.members.length === 0) this.getAllMembers();
         if (this.tournaments.length === 0) this.getAllTournaments();
 
         // If on pairs list page, fetch pairs after members loaded
         if (window.location.pathname.endsWith('/Pairs/GetAllPairs.html')) {
-            // Wait for members to load, then fetch pairs
             const waitForMembers = () => {
                 if (this.members.length > 0) {
                     this.fetchPairs();
@@ -366,9 +522,7 @@ const app = Vue.createApp({
             const id = params.get('id');
             if (id) {
                 this.getTournamentById(id).then(data => {
-                    console.log('Tournament API response:', data);
                     if (data) {
-                        // Defensive: ensure all fields are present
                         this.tournament = Object.assign({
                             id: null,
                             tournamentName: '',
@@ -381,14 +535,14 @@ const app = Vue.createApp({
                             createdAt: '',
                             isActive: true
                         }, data);
-                        // If tournamentDates is a string, split it
                         if (typeof this.tournament.tournamentDates === 'string') {
                             this.tournament.tournamentDates = this.tournament.tournamentDates.split(',').map(s => s.trim());
                         }
-                        console.log('Tournament after assign:', this.tournament);
-                    } else {
-                        console.log('No tournament data found for id', id);
                     }
+                });
+                // Fetch agreed pairs for dropdown
+                this.getAgreedPairs().then(pairs => {
+                    this.pair.pairs = pairs;
                 });
             }
         }
