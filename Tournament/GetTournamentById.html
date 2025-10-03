@@ -108,6 +108,81 @@
                             </form>
                         </div>
                         <div v-if="addMessage" class="alert alert-info mt-3">{{ addMessage }}</div>
+                        <!-- Row Management Forms (moved beneath details and buttons) -->
+                        <div class="mt-4">
+                            <!-- Assign Pair to Row -->
+                            <div class="mb-4 p-3 border rounded bg-light">
+                                <h5 class="mb-3">Tildel par til række</h5>
+                                <form @submit.prevent="assignPairToRow(selectedPairId, selectedRowId)">
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <select v-model.number="selectedPairId" class="form-control" required>
+                                                <option disabled value="">Vælg par</option>
+                                                <option v-for="pair in pair.pairs" :value="pair.id">{{ getMemberName(pair.member1) }} &amp; {{ getMemberName(pair.member2) }} (ID: {{ pair.id }})</option>
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <select v-model.number="selectedRowId" class="form-control" required>
+                                                <option disabled value="">Vælg række</option>
+                                                <option v-for="row in rows" :value="row.id">{{ row.name }} (ID: {{ row.id }})</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="submit" class="btn btn-primary">Tildel</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <form @submit.prevent="removePairFromRow(selectedPairId, selectedRowId)" class="mt-2">
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <select v-model.number="selectedPairId" class="form-control" required>
+                                                <option disabled value="">Vælg par</option>
+                                                <option v-for="pair in pair.pairs" :value="pair.id">{{ getMemberName(pair.member1) }} &amp; {{ getMemberName(pair.member2) }} (ID: {{ pair.id }})</option>
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <select v-model.number="selectedRowId" class="form-control" required>
+                                                <option disabled value="">Vælg række</option>
+                                                <option v-for="row in rows" :value="row.id">{{ row.name }} (ID: {{ row.id }})</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="submit" class="btn btn-danger">Fjern</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- Assign Row to Tournament -->
+                            <div class="mb-4 p-3 border rounded bg-light">
+                                <h5 class="mb-3">Tildel række til turnering</h5>
+                                <form @submit.prevent="assignRowToTournament(tournament.id, selectedRowIdForTournament)">
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <select v-model.number="selectedRowIdForTournament" class="form-control" required>
+                                                <option disabled value="">Vælg række</option>
+                                                <option v-for="row in rows" :value="row.id">{{ row.name }} (ID: {{ row.id }})</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="submit" class="btn btn-primary">Tildel</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <form @submit.prevent="removeRowFromTournament(tournament.id, selectedRowIdForTournament)" class="mt-2">
+                                    <div class="form-row">
+                                        <div class="col">
+                                            <select v-model.number="selectedRowIdForTournament" class="form-control" required>
+                                                <option disabled value="">Vælg række</option>
+                                                <option v-for="row in rows" :value="row.id">{{ row.name }} (ID: {{ row.id }})</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="submit" class="btn btn-danger">Fjern</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                     <div v-else class="text-center">
                         <div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>

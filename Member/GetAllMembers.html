@@ -45,31 +45,16 @@
                         <thead class="thead-light">
                             <tr>
                                 <th>ID</th>
-                                <th>Fornavn</th>
-                                <th>Efternavn</th>
-                                <th>Email</th>
-                                <th>Adresse</th>
-                                <th>Postnummer</th>
-                                <th>Telefon</th>
-                                <th>Fødselsdato</th>
-                                <th>Junior</th>
-                                <th>Nyhedsbrev</th>
-                                <th>Parhandling</th>
+                                <th>Navn</th>
+                                <th>Handlinger</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="member in members" :key="member.id">
                                 <td>{{ member.id }}</td>
-                                <td>{{ member.firstName }}</td>
-                                <td>{{ member.surName }}</td>
-                                <td>{{ member.email }}</td>
-                                <td>{{ member.address1 }} {{ member.address2 || '' }}</td>
-                                <td>{{ member.postCode }}</td>
-                                <td>{{ member.phoneNumber }}</td>
-                                <td>{{ member.dateOfBirth ? member.dateOfBirth.split('T')[0] : '' }}</td>
-                                <td>{{ member.junior ? 'Ja' : 'Nej' }}</td>
-                                <td>{{ member.newsletter ? 'Ja' : 'Nej' }}</td>
+                                <td>{{ member.firstName }} {{ member.surName }}</td>
                                 <td>
+                                    <a class="btn btn-sm btn-info mr-2" :href="'./GetMemberById.html?id=' + member.id">Detaljer</a>
                                     <button v-if="pair.pairIds.length === 0" class="btn btn-outline-primary btn-sm"
                                             @click="selectMember(member.id)">
                                         Vælg som 1. par
