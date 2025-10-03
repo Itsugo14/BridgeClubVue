@@ -38,12 +38,12 @@
             <div class="card-body">
                 <h4 class="card-title text-center mb-4">Alle Par</h4>
                 <div class="mb-3 text-center">
-                    <button class="btn btn-primary" @click="fetchPairs">Hent alle par</button>
+                    <button class="btn btn-primary" @click="fetchPairs">Opdater par</button>
                 </div>
                 <div class="table-responsive">
                     <!-- Unagreed pairs -->
                     <h5 class="mb-2 mt-4">Par der mangler enighed</h5>
-                    <table v-if="pair.pairs.filter(p => !p.agreed).length" class="table table-bordered table-striped mb-4">
+                    <table v-if="notAgreedPairs.length" class="table table-bordered table-striped mb-4">
                         <thead class="thead-light">
                             <tr>
                                 <th>ID</th>
@@ -54,7 +54,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="p in pair.pairs.filter(p => !p.agreed)" :key="p.id">
+                            <tr v-for="p in notAgreedPairs" :key="p.id">
                                 <td>{{ p.id }}</td>
                                 <td>{{ getMemberName(p.member1) }}</td>
                                 <td>{{ getMemberName(p.member2) }}</td>
@@ -71,7 +71,7 @@
 
                     <!-- Agreed pairs -->
                     <h5 class="mb-2 mt-4">Par der er enige</h5>
-                    <table v-if="pair.pairs.filter(p => p.agreed).length" class="table table-bordered table-striped">
+                    <table v-if="agreedPairs.length" class="table table-bordered table-striped">
                         <thead class="thead-light">
                             <tr>
                                 <th>ID</th>
@@ -81,7 +81,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="p in pair.pairs.filter(p => p.agreed)" :key="p.id">
+                            <tr v-for="p in agreedPairs" :key="p.id">
                                 <td>{{ p.id }}</td>
                                 <td>{{ getMemberName(p.member1) }}</td>
                                 <td>{{ getMemberName(p.member2) }}</td>
@@ -147,5 +147,7 @@
         </div>
     </footer>
     <script src="/app.js"></script>
+</body>
+</html>
 </body>
 </html>
