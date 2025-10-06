@@ -8,7 +8,7 @@ const manageTournamentRowsUrl = "https://bridgeclubapi-bvhue4gpaahmdjbs.northeur
 
 const app = Vue.createApp({
     data() {
-        return {
+    return {
             // ===================== MEMBER PROPERTIES =====================
             member: {
                 id: null,
@@ -50,12 +50,12 @@ const app = Vue.createApp({
             agreedPairs: [],
             notAgreedPairs: [],
 
-            // ===================== ROWS (for dropdowns, placeholder for now) =====================
-            rows: [
-                { id: 1, name: "Række A" },
-                { id: 2, name: "Række B" },
-                { id: 3, name: "Række C" }
-            ],
+            // ===================== ROWS (for dropdowns, will be loaded from backend) =====================
+            rows: [],
+            // ===================== ADD ROW FORM STATE =====================
+            newRowName: "",
+            newRowId: null,
+            addRowMessage: "",
 
             // ===================== FORM STATE FOR ROW ASSIGNMENT =====================
             selectedPairId: null,
@@ -91,6 +91,31 @@ const app = Vue.createApp({
         }
     },
     methods: {
+        // ===================== ADD ROW TO TOURNAMENT =====================
+        async addRow() {
+            this.addRowMessage = "";
+            if (!this.newRowName || !this.newRowId) {
+                this.addRowMessage = "Udfyld både navn og ID.";
+                return;
+            }
+            // Add to local rows array for dropdowns (optional, for UI feedback)
+            if (!this.rows.some(r => r.id === this.newRowId)) {
+                this.rows.push({ id: this.newRowId, name: this.newRowName });
+            }
+            // Assign row to tournament via API
+            if (!this.tournament.id) {
+                this.addRowMessage = "Turnering ikke fundet.";
+                return;
+            }
+            try {
+                await this.assignRowToTournament(this.tournament.id, this.newRowId);
+                this.addRowMessage = `Række tilføjet og tildelt turnering! (ID: ${this.newRowId}, Navn: ${this.newRowName})`;
+                this.newRowName = "";
+                this.newRowId = null;
+            } catch (err) {
+                this.addRowMessage = err.message || "Fejl ved tilføjelse af række.";
+            }
+        },
         // ===================== MEMBER GET BY ID =====================
         async getMemberById(id) {
             try {

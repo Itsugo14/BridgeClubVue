@@ -152,35 +152,17 @@
                                     </div>
                                 </form>
                             </div>
-                            <!-- Assign Row to Tournament -->
+                            <!-- Tilføj/fjern række (Add/Delete Row) -->
                             <div class="mb-4 p-3 border rounded bg-light">
-                                <h5 class="mb-3">Tildel række til turnering</h5>
-                                <form @submit.prevent="assignRowToTournament(tournament.id, selectedRowIdForTournament)">
-                                    <div class="form-row">
-                                        <div class="col">
-                                            <select v-model.number="selectedRowIdForTournament" class="form-control" required>
-                                                <option disabled value="">Vælg række</option>
-                                                <option v-for="row in rows" :value="row.id">{{ row.name }} (ID: {{ row.id }})</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-auto">
-                                            <button type="submit" class="btn btn-primary">Tildel</button>
-                                        </div>
-                                    </div>
-                                </form>
-                                <form @submit.prevent="removeRowFromTournament(tournament.id, selectedRowIdForTournament)" class="mt-2">
-                                    <div class="form-row">
-                                        <div class="col">
-                                            <select v-model.number="selectedRowIdForTournament" class="form-control" required>
-                                                <option disabled value="">Vælg række</option>
-                                                <option v-for="row in rows" :value="row.id">{{ row.name }} (ID: {{ row.id }})</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-auto">
-                                            <button type="submit" class="btn btn-danger">Fjern</button>
-                                        </div>
-                                    </div>
-                                </form>
+                                <h5 class="mb-3">Rækker i denne turnering</h5>
+                                <ul class="list-group mb-3">
+                                    <li v-for="row in rows" :key="row.id" class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ row.name }} (ID: {{ row.id }})</span>
+                                        <button class="btn btn-sm btn-danger" @click="removeRowFromTournament(tournament.id, row.id)">Slet</button>
+                                    </li>
+                                </ul>
+                                <button class="btn btn-success w-100" @click="addRow">Tilføj næste række</button>
+                                <div v-if="addRowMessage" class="alert alert-info mt-2">{{ addRowMessage }}</div>
                             </div>
                         </div>
                     </div>
