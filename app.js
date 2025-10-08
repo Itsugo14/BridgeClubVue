@@ -62,6 +62,9 @@ const app = Vue.createApp({
             selectedRowId: null,
             selectedRowIdForTournament: null,
 
+            // ===================== ROWS WITH PAIRS FOR TOURNAMENT =====================
+            rowsWithPairs: [],
+
             // ===================== FRONTEND PROPERTIES =====================
             members: [],
             tournaments: [],
@@ -70,6 +73,39 @@ const app = Vue.createApp({
             error: "",
             // Inline update form
             showUpdate: false,
+            // ===================== ADD ROW BUTTON STATE =====================
+            addRowLoading: false,
+            addRowError: '',
+            addRowSuccess: '',
+            // ===================== PAIR ASSIGNMENT MESSAGE =====================
+            assignPairMessage: '',
+        // ===================== PAIR TOURNAMENT ASSIGNMENT =====================
+        async assignPairToTournament(selectedPairId) {
+            // Assigns the selected pair to the first available row (max 10 pairs per row, then next row)
+            this.assignPairMessage = '';
+            if (!selectedPairId) {
+                this.assignPairMessage = 'Vælg et par.';
+                return;
+            }
+            if (!this.rowsWithPairs || !this.rowsWithPairs.length) {
+                this.assignPairMessage = 'Ingen rækker tilgængelige.';
+                return;
+            }
+            // Find the first row with less than 10 pairs
+            let targetRow = this.rowsWithPairs.find(r => Array.isArray(r.pairs) && r.pairs.length < 10);
+            if (!targetRow) {
+                this.assignPairMessage = 'Alle rækker er fyldt. Tilføj en ny række.';
+                return;
+            }
+            try {
+                await this.assignPairToRow(selectedPairId, targetRow.rowId);
+                this.assignPairMessage = 'Par tildelt til række ' + targetRow.rowName + '!';
+                // Optionally, clear the selection
+                this.selectedPairId = '';
+            } catch (err) {
+                this.assignPairMessage = err.response?.data?.message || err.message || 'Fejl ved tildeling af par.';
+            }
+        },
         };
     },
     watch: {
@@ -91,6 +127,29 @@ const app = Vue.createApp({
         }
     },
     methods: {
+        // ===================== ADD ROW TOURNAMENT BUTTON =====================
+        async addRowToTournament() {
+            this.addRowError = '';
+            this.addRowSuccess = '';
+            this.addRowLoading = true;
+            try {
+                if (!this.tournament.id) {
+                    this.addRowError = 'Turnering ikke fundet.';
+                    this.addRowLoading = false;
+                    return;
+                }
+                    // POST /api/ManageTournamentRows/{tournamentId}
+                    const url = `${manageTournamentRowsUrl}/${this.tournament.id}`;
+                const response = await axios.post(url);
+                this.addRowSuccess = 'Række tilføjet!';
+                // Refresh rowsWithPairs
+                this.rowsWithPairs = await this.getRowsWithPairsForTournament(this.tournament.id);
+            } catch (err) {
+                this.addRowError = err.response?.data?.message || err.message || 'Fejl ved tilføjelse af række.';
+            } finally {
+                this.addRowLoading = false;
+            }
+        },
         // ===================== ADD ROW TO TOURNAMENT =====================
         async addRow() {
             this.addRowMessage = "";
@@ -359,30 +418,56 @@ const app = Vue.createApp({
             // POST /api/ManageRowPairs/{pairId}/rows/{rowId}
             const url = `${manageRowPairsUrl}/${pairId}/rows/${rowId}`;
             try {
-                const response = await axios.post(url);
+                // Send an empty object as the POST body
+                const response = await axios.post(url, {});
                 this.addMessage = `Par tildelt række! (${response.status} ${response.statusText})`;
+                // Refresh rowsWithPairs for immediate UI update
+                if (this.tournament && this.tournament.id) {
+                    this.rowsWithPairs = await this.getRowsWithPairsForTournament(this.tournament.id);
+                }
                 return response.data;
             } catch (err) {
-                this.addMessage = err.response?.data?.message || err.message;
+                // Show backend error message if available
+                this.addMessage = err.response?.data?.message || err.response?.data || err.message;
                 return null;
             }
         },
         async removePairFromRow(pairId, rowId) {
+            // pairId may be a synthetic id (member1_member2), so look up the real pair id from agreed pairs
+            let realPairId = pairId;
+            if (typeof pairId === 'string' && pairId.includes('_')) {
+                // Try to find the pair in pair.pairs by matching member names
+                const [name1, name2] = pairId.split('_');
+                const found = (this.pair.pairs || []).find(p => {
+                    return this.getMemberName(p.member1) === name1 && this.getMemberName(p.member2) === name2;
+                });
+                if (found && found.id) {
+                    realPairId = found.id;
+                }
+            }
             // DELETE /api/ManageRowPairs/{pairId}/rows/{rowId}
-            const url = `${manageRowPairsUrl}/${pairId}/rows/${rowId}`;
+            const url = `${manageRowPairsUrl}/${realPairId}/rows/${rowId}`;
             try {
                 const response = await axios.delete(url);
                 this.addMessage = `Par fjernet fra række! (${response.status} ${response.statusText})`;
+                // Refresh rowsWithPairs for immediate UI update
+                if (this.tournament && this.tournament.id) {
+                    this.rowsWithPairs = await this.getRowsWithPairsForTournament(this.tournament.id);
+                }
                 return true;
             } catch (err) {
                 this.addMessage = err.response?.data?.message || err.message;
                 return false;
             }
         },
-        // ===================== TOURNAMENT ROW MANAGEMENT METHODS =====================
-        async assignRowToTournament(tournamentId, rowId) {
-            // POST /api/ManageTournamentRows/{tournamentId}/rows/{rowId}
-            const url = `${manageTournamentRowsUrl}/${tournamentId}/rows/${rowId}`;
+    // ===================== TOURNAMENT ROW MANAGEMENT METHODS =====================
+        async assignRowToTournament(tournamentId) {
+            // Use this.newRowId from data
+            if (!this.newRowId) {
+                this.addMessage = "Række ID mangler.";
+                return null;
+            }
+            const url = `${manageTournamentRowsUrl}/${tournamentId}/rows/${this.newRowId}`;
             try {
                 const response = await axios.post(url);
                 this.addMessage = `Række tildelt turnering! (${response.status} ${response.statusText})`;
@@ -398,10 +483,69 @@ const app = Vue.createApp({
             try {
                 const response = await axios.delete(url);
                 this.addMessage = `Række fjernet fra turnering! (${response.status} ${response.statusText})`;
+                // Refresh rowsWithPairs for smooth UI update
+                this.rowsWithPairs = await this.getRowsWithPairsForTournament(tournamentId);
                 return true;
             } catch (err) {
                 this.addMessage = err.response?.data?.message || err.message;
                 return false;
+            }
+        },
+
+        // ===================== GET ROWS WITH PAIRS FOR TOURNAMENT =====================
+        async getRowsWithPairsForTournament(tournamentId) {
+            // GET /api/ClubTournamentsDb/{id}/rowswithpairs
+            try {
+                const url = `${tournamentUrl}/${tournamentId}/rowswithpairs`;
+                const response = await axios.get(url);
+                let data = response.data;
+                // If already array, return as is
+                if (Array.isArray(data)) return data;
+                // If object with rowsAndPairs, use that
+                if (data && typeof data === 'object' && data.rowsAndPairs) {
+                    data = data.rowsAndPairs;
+                }
+                // If string, parse it
+                if (typeof data === 'string') {
+                    // Example: "Row A: Mads Larsen & Mark Bridge, Tan Khuu & Zimon Jacobsen | Row B: No pairs | Row C: No pairs"
+                    return data.split('|').map(rowStr => {
+                        rowStr = rowStr.trim();
+                        if (!rowStr) return null;
+                        const [rowNamePart, pairsPartRaw] = rowStr.split(':');
+                        const rowName = rowNamePart ? rowNamePart.trim() : '';
+                        // Map 'Row A' to 1, 'Row B' to 2, etc.
+                        let rowId = null;
+                        const match = rowName.match(/^Row ([A-Z])$/i);
+                        if (match) {
+                            rowId = match[1].toUpperCase().charCodeAt(0) - 64; // 'A' = 1
+                        } else {
+                            rowId = rowName; // fallback
+                        }
+                        const pairsPart = pairsPartRaw ? pairsPartRaw.trim() : '';
+                        let pairs = [];
+                        if (pairsPart && pairsPart.toLowerCase() !== 'no pairs') {
+                            // Split on ',' for multiple pairs
+                            pairs = pairsPart.split(',').map(pairStr => {
+                                const [member1, member2] = pairStr.split('&').map(s => s.trim());
+                                return {
+                                    id: member1 + '_' + member2,
+                                    member1: { firstName: member1, surName: '' },
+                                    member2: { firstName: member2, surName: '' }
+                                };
+                            });
+                        }
+                        return rowName ? {
+                            rowName,
+                            rowId,
+                            pairs
+                        } : null;
+                    }).filter(Boolean);
+                }
+                // Fallback: return empty array
+                return [];
+            } catch (err) {
+                this.error = err.message;
+                return [];
             }
         },
         // --- Member List Pair Selection Logic ---
@@ -563,6 +707,10 @@ const app = Vue.createApp({
                         if (typeof this.tournament.tournamentDates === 'string') {
                             this.tournament.tournamentDates = this.tournament.tournamentDates.split(',').map(s => s.trim());
                         }
+                        // Fetch rows with pairs for this tournament
+                        this.getRowsWithPairsForTournament(id).then(rows => {
+                            this.rowsWithPairs = rows;
+                        });
                     }
                 });
                 // Fetch agreed pairs for dropdown
@@ -573,6 +721,4 @@ const app = Vue.createApp({
         }
     }
 });
-
-// Mount the Vue app and expose it globally for inline access
 app.mount('#app');

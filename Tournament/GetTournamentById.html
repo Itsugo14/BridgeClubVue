@@ -36,7 +36,7 @@
             <div class="card shadow w-100" style="max-width: 900px;">
                 <div class="card-body">
                     <h4 class="card-title text-center mb-4">Turnering Detaljer</h4>
-                    <div v-if="tournament && tournament.id">
+                    <template v-if="tournament && tournament.id">
                         <dl class="row">
                             <dt class="col-sm-4">ID</dt>
                             <dd class="col-sm-8">{{ tournament.id }}</dd>
@@ -63,6 +63,25 @@
                             <a class="btn btn-secondary mr-2" href="/Tournament/GetAllTournaments.html">Tilbage</a>
                             <button class="btn btn-warning mr-2" @click="showUpdate = true">Opdater</button>
                             <button class="btn btn-danger" @click="deleteTournament(tournament.id)">Slet</button>
+                        </div>
+                        <!-- Dropdown for agreed pairs and add button (assigns to first available row) -->
+                        <div class="p-3 border rounded bg-light mt-4">
+                            <h5 class="mb-3">Tilføj godkendt par til turnering</h5>
+                            <div class="form-row align-items-center">
+                                <div class="col-auto flex-grow-1">
+                                    <select v-model="selectedPairId" class="form-control">
+                                        <option disabled value="">Vælg et par</option>
+                                        <option v-for="apair in pair.pairs" :key="apair.id" :value="apair.id">
+                                            {{ getMemberName(apair.member1) }} &amp; {{ getMemberName(apair.member2) }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-success" :disabled="!selectedPairId" @click="assignPairToTournament(selectedPairId)">Tilføj til turnering</button>
+                                </div>
+                            </div>
+                            <div v-if="assignPairMessage" class="mt-2 alert alert-info p-2">{{ assignPairMessage }}</div>
+                        </div>
                         </div>
                         <!-- Inline update form -->
                         <div v-if="showUpdate" ref="updateForm" class="mt-4">
@@ -108,68 +127,48 @@
                             </form>
                         </div>
                         <div v-if="addMessage" class="alert alert-info mt-3">{{ addMessage }}</div>
-                        <!-- Row Management Forms (moved beneath details and buttons) -->
+                        <!-- Add Row Button and Message -->
                         <div class="mt-4">
-                            <!-- Assign Pair to Row -->
-                            <div class="mb-4 p-3 border rounded bg-light">
-                                <h5 class="mb-3">Tildel par til række</h5>
-                                <form @submit.prevent="assignPairToRow(selectedPairId, selectedRowId)">
-                                    <div class="form-row">
-                                        <div class="col">
-                                            <select v-model.number="selectedPairId" class="form-control" required>
-                                                <option disabled value="">Vælg par</option>
-                                                <option v-for="pair in pair.pairs" :value="pair.id">{{ getMemberName(pair.member1) }} &amp; {{ getMemberName(pair.member2) }} (ID: {{ pair.id }})</option>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <select v-model.number="selectedRowId" class="form-control" required>
-                                                <option disabled value="">Vælg række</option>
-                                                <option v-for="row in rows" :value="row.id">{{ row.name }} (ID: {{ row.id }})</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-auto">
-                                            <button type="submit" class="btn btn-primary">Tildel</button>
-                                        </div>
-                                    </div>
-                                </form>
-                                <form @submit.prevent="removePairFromRow(selectedPairId, selectedRowId)" class="mt-2">
-                                    <div class="form-row">
-                                        <div class="col">
-                                            <select v-model.number="selectedPairId" class="form-control" required>
-                                                <option disabled value="">Vælg par</option>
-                                                <option v-for="pair in pair.pairs" :value="pair.id">{{ getMemberName(pair.member1) }} &amp; {{ getMemberName(pair.member2) }} (ID: {{ pair.id }})</option>
-                                            </select>
-                                        </div>
-                                        <div class="col">
-                                            <select v-model.number="selectedRowId" class="form-control" required>
-                                                <option disabled value="">Vælg række</option>
-                                                <option v-for="row in rows" :value="row.id">{{ row.name }} (ID: {{ row.id }})</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-auto">
-                                            <button type="submit" class="btn btn-danger">Fjern</button>
-                                        </div>
-                                    </div>
-                                </form>
+                            <div class="mb-3">
+                                <button class="btn btn-primary" :disabled="addRowLoading" @click="addRowToTournament">
+                                    <span v-if="addRowLoading" class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+                                    Tilføj række
+                                </button>
+                                <span v-if="addRowError" class="text-danger ml-3">{{ addRowError }}</span>
+                                <span v-if="addRowSuccess" class="text-success ml-3">{{ addRowSuccess }}</span>
                             </div>
-                            <!-- Tilføj/fjern række (Add/Delete Row) -->
                             <div class="mb-4 p-3 border rounded bg-light">
-                                <h5 class="mb-3">Rækker i denne turnering</h5>
-                                <ul class="list-group mb-3">
-                                    <li v-for="row in rows" :key="row.id" class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>{{ row.name }} (ID: {{ row.id }})</span>
-                                        <button class="btn btn-sm btn-danger" @click="removeRowFromTournament(tournament.id, row.id)">Slet</button>
-                                    </li>
-                                </ul>
-                                <button class="btn btn-success w-100" @click="addRow">Tilføj næste række</button>
-                                <div v-if="addRowMessage" class="alert alert-info mt-2">{{ addRowMessage }}</div>
+                                <h5 class="mb-3">Rækker og par i denne turnering</h5>
+                                <template v-if="rowsWithPairs && rowsWithPairs.length">
+                                    <div v-for="row in rowsWithPairs" :key="row.rowName" class="mb-3">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <strong class="mr-2">{{ row.rowName }}</strong>
+                                            <button class="btn btn-sm btn-danger ml-auto" @click="removeRowFromTournament(tournament.id, row.rowId)">Slet række</button>
+                                        </div>
+                                        <ul class="list-group mt-2">
+                                            <li v-if="!row.pairs || !row.pairs.length" class="list-group-item text-muted">Ingen par i denne række</li>
+                                            <li v-for="pair in row.pairs" :key="pair.id" class="list-group-item p-1">
+                                                <span style="display: inline-flex; align-items: center;">
+                                                    {{ getMemberName(pair.member1) }} &amp; {{ getMemberName(pair.member2) }}
+                                                    <button class="btn btn-danger btn-sm ml-2" style="margin-left: 8px;" @click="removePairFromRow(pair.id, row.rowId)">Fjern</button>
+                                                </span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <div class="text-muted">Ingen rækker fundet for denne turnering.</div>
+                                </template>
                             </div>
                         </div>
                     </div>
-                    <div v-else class="text-center">
-                        <div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>
-                        <p class="mt-3">Indlæser turnering...</p>
-                    </div>
+                    </template>
+                    <template v-else>
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>
+                            <p class="mt-3">Indlæser turnering...</p>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
@@ -216,7 +215,7 @@
             </div>
             <div class="row">
                 <div class="col-12 text-center mt-3">
-                    <span class="text-muted">&copy; 2025 Dansk Bridgeforbund. Alle rettigheder forbeholdes.</span>
+                    <div v-else class="text-center">
                 </div>
             </div>
         </div>
