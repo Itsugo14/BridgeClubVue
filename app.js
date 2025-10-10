@@ -477,12 +477,12 @@ const app = Vue.createApp({
                 return null;
             }
         },
-        async removeRowFromTournament(tournamentId, rowId) {
-            // DELETE /api/ManageTournamentRows/{tournamentId}/rows/{rowId}
-            const url = `${manageTournamentRowsUrl}/${tournamentId}/rows/${rowId}`;
+        async removeRowFromTournament(tournamentId) {
+            // DELETE /api/ManageTournamentRows/{tournamentId}
+            const url = `${manageTournamentRowsUrl}/${tournamentId}`;
             try {
                 const response = await axios.delete(url);
-                this.addMessage = `Række fjernet fra turnering! (${response.status} ${response.statusText})`;
+                this.addMessage = `Sidste række fjernet fra turnering! (${response.status} ${response.statusText})`;
                 // Refresh rowsWithPairs for smooth UI update
                 this.rowsWithPairs = await this.getRowsWithPairsForTournament(tournamentId);
                 return true;
@@ -501,13 +501,47 @@ const app = Vue.createApp({
                 let data = response.data;
                 // If already array, return as is
                 if (Array.isArray(data)) return data;
-                // If object with rowsAndPairs, use that
+                // If object with rowsAndPairsJSON, use that (preferred)
+                if (data && typeof data === 'object' && data.rowsAndPairsJSON) {
+                    // rowsAndPairsJSON is a stringified JSON array
+                    let rowsJson = [];
+                    try {
+                        rowsJson = JSON.parse(data.rowsAndPairsJSON);
+                    } catch (e) {
+                        rowsJson = [];
+                    }
+                    // Group by RowId, collect pairs per row
+                    const rowMap = {};
+                    rowsJson.forEach(item => {
+                        const rowId = item.RowId;
+                        const rowName = item.RowName;
+                        if (!rowMap[rowId]) {
+                            rowMap[rowId] = {
+                                rowId,
+                                rowName,
+                                pairs: []
+                            };
+                        }
+                        if (item.PairId && item.PairFullName) {
+                            // Split full name into two members
+                            const [member1, member2] = item.PairFullName.split('&').map(s => s.trim());
+                            rowMap[rowId].pairs.push({
+                                id: item.PairId,
+                                member1: { firstName: member1, surName: '' },
+                                member2: { firstName: member2, surName: '' }
+                            });
+                        }
+                    });
+                    // Convert map to array, sorted by rowName
+                    return Object.values(rowMap).sort((a, b) => a.rowName.localeCompare(b.rowName));
+                }
+                // If object with rowsAndPairs, use that (legacy)
                 if (data && typeof data === 'object' && data.rowsAndPairs) {
                     data = data.rowsAndPairs;
                 }
-                // If string, parse it
+                // If string, parse it (legacy)
                 if (typeof data === 'string') {
-                    // Example: "Row A: Mads Larsen & Mark Bridge, Tan Khuu & Zimon Jacobsen | Row B: No pairs | Row C: No pairs"
+                    // ...existing code...
                     return data.split('|').map(rowStr => {
                         rowStr = rowStr.trim();
                         if (!rowStr) return null;
